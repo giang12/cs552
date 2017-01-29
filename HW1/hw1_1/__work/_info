@@ -7,17 +7,17 @@ z2
 !i10e 25
 !i10f 100
 cModel Technology
-Z0 d/afs/cs.wisc.edu/u/g/i/giang/private/CS552/hw1_1
+Z0 d/afs/cs.wisc.edu/u/g/i/giang/private/CS552/HW1/hw1_1
 T_opt
-!s110 1485667986
-VG<FDmOFLoFmjQ0Ye4[[GH2
+!s110 1485668395
+V`Ki5`o>a6j79_19oBCj?z2
 04 16 4 work quadmux4_1_bench fast 0
-=1-f8bc128c5b7b-588d7e91-de6a3-2809
+=1-f8bc128c5b7b-588d802b-2c24f-294e
 o-quiet -auto_acc_if_foreign -work __work +acc
 n@_opt
 OE;O;10.4c;61
 vclkrst
-Z1 !s110 1485667985
+Z1 !s110 1485668394
 !i10b 1
 !s100 d1=HFa9@5T7JH2L8mb3gE1
 I76^B^z0K=`bfSS`caA`Ik3
@@ -31,7 +31,7 @@ Z3 OE;L;10.4c;61
 r1
 !s85 0
 31
-Z4 !s108 1485667985.000000
+Z4 !s108 1485668394.000000
 Z5 !s107 quadmux4_1.v|quadmux4_1_bench.v|not1.v|nor3.v|nor2.v|nand3.v|nand2.v|mux4_1.v|mux2_1.v|clkrst.v|
 Z6 !s90 +define+RANDSEED=3|-work|__work|clkrst.v|mux2_1.v|mux4_1.v|nand2.v|nand3.v|nor2.v|nor3.v|not1.v|quadmux4_1_bench.v|quadmux4_1.v|
 !i113 0
