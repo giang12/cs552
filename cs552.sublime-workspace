@@ -7,6 +7,34 @@
 	},
 	"buffers":
 	[
+		{
+			"contents": "\n\nmodule alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);\n   \n        input [15:0] A;\n        input [15:0] B;\n        input Cin;\n        input [2:0] Op;\n        input invA;\n        input invB;\n        input sign;\n        output [15:0] Out;\n        output Ofl;\n        output Z;\n\n   /*\n\tYour code goes here\n   *\n/    \nendmodule\n",
+			"file": "hw2/hw2_2/alu.v",
+			"file_size": 330,
+			"file_write_time": 131312360740000000,
+			"settings":
+			{
+				"buffer_size": 330,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "modules/mux2_1_16bit.v",
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "modules/mux4_1_16bit.v",
+			"settings":
+			{
+				"buffer_size": 587,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -24,11 +52,15 @@
 				"Package Control: Install Package"
 			],
 			[
+				"veri",
+				"Git: Show Previous Version of Current File"
+			],
+			[
 				"install",
 				"Package Control: Install Package"
 			]
 		],
-		"width": 440.0
+		"width": 593.0
 	},
 	"console":
 	{
@@ -50,15 +82,36 @@
 	"expanded_folders":
 	[
 		"/u/g/i/giang/private/CS552",
-		"/u/g/i/giang/private/CS552/HW1",
-		"/u/g/i/giang/private/CS552/HW1/hw1_3"
+		"/u/g/i/giang/private/CS552/hw2",
+		"/u/g/i/giang/private/CS552/hw2/hw2_2",
+		"/u/g/i/giang/private/CS552/modules"
 	],
 	"file_history":
 	[
+		"/u/g/i/giang/private/CS552/modules/quadmux4_1.v",
+		"/u/g/i/giang/private/CS552/modules/and2.v",
+		"/u/g/i/giang/private/CS552/modules/and2_16bit.v",
+		"/u/g/i/giang/private/CS552/modules/or2_16bit.v",
+		"/u/g/i/giang/private/CS552/modules/or2.v",
+		"/u/g/i/giang/private/CS552/modules/xor2.v",
+		"/u/g/i/giang/private/CS552/modules/xor2_16bit.v",
+		"/u/g/i/giang/private/CS552/modules/xor2_4bit.v",
+		"/u/g/i/giang/private/CS552/hw2/hw2_2/alu.v",
+		"/u/g/i/giang/private/CS552/modules/xor3.v",
+		"/u/g/i/giang/private/CS552/modules/mux4_1.v",
+		"/u/g/i/giang/private/CS552/modules/mux2_1.v",
+		"/u/g/i/giang/private/CS552/modules/nand2.v",
+		"/u/g/i/giang/private/CS552/modules/nor2.v",
+		"/u/g/i/giang/private/CS552/modules/nor3.v",
+		"/u/g/i/giang/private/CS552/modules/not1.v",
+		"/u/g/i/giang/private/CS552/hw2/hw2_2/alu_hier.v",
+		"/u/g/i/giang/private/CS552/HW1/hw1_1/clkrst.v",
+		"/u/g/i/giang/private/CS552/HW1/hw1_3/nor2.v",
+		"/u/g/i/giang/private/CS552/HW1/hw1_3/nand2.v"
 	],
 	"find":
 	{
-		"height": 0.0
+		"height": 25.0
 	},
 	"find_in_files":
 	{
@@ -80,7 +133,7 @@
 		"replace_history":
 		[
 		],
-		"reverse": false,
+		"reverse": true,
 		"show_context": true,
 		"use_buffer2": true,
 		"whole_word": false,
@@ -89,18 +142,329 @@
 	"groups":
 	[
 		{
+			"selected": 2,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "hw2/hw2_2/alu.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 330,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								330,
+								330
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/Verilog/Verilog.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "modules/mux2_1_16bit.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"open_with_edit": true,
+							"syntax": "Packages/Verilog/Verilog.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "modules/mux4_1_16bit.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 587,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								18,
+								18
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"open_with_edit": true,
+							"syntax": "Packages/Verilog/Verilog.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 0.0
+		"height": 25.0
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 33.0
 	},
 	"layout":
 	{
@@ -133,7 +497,7 @@
 	"project": "cs552.sublime-project",
 	"replace":
 	{
-		"height": 0.0
+		"height": 46.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -142,6 +506,10 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"clk",
+				"HW1/hw1_1/clkrst.v"
+			]
 		],
 		"width": 0.0
 	},
@@ -171,7 +539,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 358.0,
+	"side_bar_width": 369.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
