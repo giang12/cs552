@@ -1,0 +1,12 @@
+{
+  "name": "modules",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "fulladder16_bench": "wsrun.pl fulladder16_bench fulladder16.v fulladder4.v fulladder1.v xor2.v nand2.v  fulladder16_bench.v clkrst.v"
+
+  },
+  "author": "",
+  "license": "BSD-2-Clause"
+}
