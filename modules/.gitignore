@@ -1,3 +1,5 @@
 __work/**/*
 transcript
 dump.*
+wsrun.log
+node_modules/**/*
