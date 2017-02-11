@@ -1,5 +1,5 @@
 $date
-	Wed Feb  1 16:57:48 2017
+	Sat Feb 11 14:50:40 2017
 $end
 $version
 	QuestaSim Version 10.4c
@@ -8,7 +8,7 @@ $timescale
 	1ns
 $end
 
-$scope module fulladder_bench $end
+$scope module fulladder16_bench $end
 $var reg 17 ! A [16:0] $end
 $var reg 17 " B [16:0] $end
 $var reg 17 # Sumcalc [16:0] $end

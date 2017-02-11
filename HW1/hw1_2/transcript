@@ -1,5 +1,5 @@
-# vsim -c fulladder_bench -lib __work -voptargs="+acc" -wlf dump.wlf -do "log -howmany -rec /* ; run -all" 
-# Start time: 16:57:47 on Feb 01,2017
+# vsim -c fulladder16_bench -lib __work -voptargs="+acc" -wlf dump.wlf -do "log -howmany -rec /* ; run -all" 
+# Start time: 14:50:39 on Feb 11,2017
 # ** Note: (vsim-3812) Design is being optimized...
 # //  Questa Sim
 # //  Version 10.4c linux Jul 19 2015
@@ -16,7 +16,7 @@
 # //  FURTHERMORE, THIS INFORMATION IS PROHIBITED FROM DISCLOSURE UNDER
 # //  THE TRADE SECRETS ACT, 18 U.S.C. SECTION 1905.
 # //
-# Loading work.fulladder_bench(fast)
+# Loading work.fulladder16_bench(fast)
 # Loading work.clkrst(fast)
 # Loading work.fulladder16(fast)
 # Loading work.fulladder4(fast)
@@ -24,7 +24,7 @@
 # Loading work.xor2(fast)
 # Loading work.nand2(fast)
 # ** Warning: (vsim-3015) fulladder16.v(10): [PCDPC] - Port size (1) does not match connection size (32) for port 'CI'. The port definition is at: fulladder4.v(5).
-#    Time: 0 ns  Iteration: 0  Instance: /fulladder_bench/DUT/inst0 File: fulladder4.v
+#    Time: 0 ns  Iteration: 0  Instance: /fulladder16_bench/DUT/inst0 File: fulladder4.v
 # log -howmany -rec /* 
 # 419
 #  run -all
@@ -61,6 +61,6 @@
 # A : 002bc, B0dd2a, Sum dfe6
 # A : 09a0b, B0be71, Sum 587c
 # ** Note: $finish    : fulladder_bench.v(21)
-#    Time: 3200 ns  Iteration: 0  Instance: /fulladder_bench
-# End time: 16:57:48 on Feb 01,2017, Elapsed time: 0:00:01
+#    Time: 3200 ns  Iteration: 0  Instance: /fulladder16_bench
+# End time: 14:50:40 on Feb 11,2017, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 1

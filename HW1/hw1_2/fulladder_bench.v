@@ -1,4 +1,4 @@
-module fulladder_bench;
+module fulladder16_bench;
 
    reg [16:0] A;
    reg [16:0] B;
