@@ -1,6 +1,6 @@
 
 
-module and2_16bit(in1, in2, out)
+module and2_16bit(in1, in2, out);
 	input [15:0] in1,in2;
 	output [15:0] out;
 

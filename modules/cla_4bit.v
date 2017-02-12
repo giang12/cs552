@@ -1,5 +1,5 @@
 
-module cla_4bit(A, B, Cin, S, G, P)
+module cla_4bit(A, B, Cin, S, G, P);
 	
 	input [3:0] A, B;
 	input Cin;

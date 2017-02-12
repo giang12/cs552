@@ -1,5 +1,5 @@
 
-module cla_16bit(A, B, Cin, S, G, P)
+module cla_16bit(A, B, Cin, S, G, P);
 	
 	input [15:0] A, B;
 	input Cin;

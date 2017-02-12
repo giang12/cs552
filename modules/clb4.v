@@ -1,5 +1,5 @@
 
-module clb4(Cin, Gin, Pin, Cout, Gout, Pout)
+module clb4(Cin, Gin, Pin, Cout, Gout, Pout);
 	input Cin;
 	input [3:0] Gin, Pin;
 	output [3:0] Cout;

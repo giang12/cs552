@@ -1,5 +1,5 @@
 
-module cla(A, B, Cin, S, G, P)
+module cla(A, B, Cin, S, G, P);
 
 	input A, B, Cin;
 	output S, G, P;
