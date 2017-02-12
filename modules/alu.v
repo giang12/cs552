@@ -35,7 +35,7 @@ module alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
     mux4_1_16bit inst5(.InA(add_out), .InB(or_out), .InC(xor_out), .InD(and_out), .S(Op[1:0]), .Out(arithmetic_out));
     mux2_1_16bit inst6(.InA(shifter_out), .InB(arithmetic_out), .S(Op[2]), .Out(Out));
 
-    //to do
+    //to do dfaasddas
     //zero detection
     assign Ofl = 0;
     //overflow detection

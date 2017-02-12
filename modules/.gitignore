@@ -3,3 +3,4 @@ transcript
 dump.*
 wsrun.log
 node_modules/**/*
+*.v~
