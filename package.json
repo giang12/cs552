@@ -1,0 +1,23 @@
+{
+  "name": "nebula",
+  "version": "1.0.0",
+  "description": "Martian ROck",
+  "main": "partlist.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giang12/cs552.git"
+  },
+  "keywords": [
+    "zen",
+    "giang"
+  ],
+  "author": "giang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/giang12/cs552/issues"
+  },
+  "homepage": "https://github.com/giang12/cs552#readme"
+}
