@@ -1,9 +1,0 @@
-/* $Author: Giang Nguyen $ */
-// CS/ECE 552
-// 1/28/17
-
-module mux2_1 (InA, InB, S, Out);
-input InA, InB, S;
-output out;
-assign out = ~(in1 & in2);
-endmodule
