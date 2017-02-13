@@ -1,13 +1,13 @@
 return require.main === module ?
-    (new PartList(process.argv.slice(2) /**slice [node, scriptpath,]**/ , function(list, err) {
+    (new vPartList(process.argv.slice(2) /**slice [node, scriptpath,]**/ , function(list, err) {
         if (err) {
             return console.log(err)
         }
         console.log(list.join(" "));
-    })) : (module.exports = PartList);
+    })) : (module.exports = vPartList);
 
 /*
-partlist.js
+vpartlist.js
 
 get part list of module X under modules/
 
@@ -25,7 +25,7 @@ whileToCheck not empty
 endwhile
 output X.v a.v a.v a.v
  */
-function PartList(args, callback) {
+function vPartList(args, callback) {
 
     var _log = require.main === module ? console.log : (function() {});
 
@@ -85,13 +85,13 @@ function PartList(args, callback) {
     var part_ext = path.extname(part_path);
 
     if (args.length < 1) {
-        _log("node partlist.js help! for more info");
-        return new PError("usage: node partlist.js modules/moduleToGetPartListOf.v");
+        _log("node vpartlist.js help! for more info");
+        return new PError("usage: node vpartlist.js modules/moduleToGetPartListOf.v");
     }
     if (part_path.toLowerCase() === "help") {
 
         _log("flags: -p(all) include full path to components");
-        return new PError("usage: node partlist.js modules/moduleToGetPartListOf.v -p(ath)");
+        return new PError("usage: node vpartlist.js modules/moduleToGetPartListOf.v -p(ath)");
     }
 
     var flags = {

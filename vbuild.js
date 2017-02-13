@@ -1,7 +1,7 @@
-var PartList = require('./partlist.js');
+var vPartList = require('./vpartlist.js');
 
 
-new PartList([
+new vPartList([
     "modules/shifter.v",
     "-path"
 ], function(list, err) {
