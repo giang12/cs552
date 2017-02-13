@@ -5,3 +5,4 @@ wsrun.log
 node_modules/**/*
 *.v~
 *.vcheck.out
+*.log

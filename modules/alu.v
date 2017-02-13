@@ -41,7 +41,7 @@ module alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
     nor16 inst7(.in(Out), .out(Z));
 
     //overflow detection
-    overflow_detector inst8(.msbA(inA[15]), .msbB(inB[15]), .msbS(Out[15]), .Cout(c_out), .Sign(sign), .Ofl(ofl_out));
+    overflow_detector inst8(.msbA(inA[15]), .msbB(inB[15]), .msbS(add_out[15]), .Cout(c_out), .Sign(sign), .Ofl(ofl_out));
 
     and2 inst9(.in1(Op[2]), .in2(ofl_out), .out(Ofl));
     //assign Ofl = Op[2] ? ofl_out : 0; //no ofl on shifting
