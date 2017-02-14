@@ -25,22 +25,20 @@ whileToCheck not empty
 endwhile
 output X.v a.v a.v a.v
  */
-function vPartList(args, callback) {
+function vPartList(args, callback, undefined) {
 
     var _log = require.main === module ? console.log : (function() {});
-
     var fs = require('fs');
     var path = require('path');
-
     var PError = function(err) {
         if (require.main === module) {
             _log(err);
             process.exit(1);
         } else {
-            throw new Error(err);
+            //throw new Error(err);
+             return callback(null, err);//bubble up
         }
     };
-
     Array.prototype.contains = function(obj) {
         var i = this.length;
         while (i--) {
@@ -60,12 +58,10 @@ function vPartList(args, callback) {
         }
         return false;
     }
-
     List.prototype.has = function(part) {
 
         return this.parts.contains((flags.p ? part : path.basename(part)));
     }
-
     var ZeroTrigger = function() {
         this.count = 0;
     }
@@ -80,38 +76,25 @@ function vPartList(args, callback) {
         }
     }
 
-    var part_path = args[0];
-    var part_dir = path.dirname(part_path);
-    var part_ext = path.extname(part_path);
-
     if (args.length < 1) {
         _log("node vpartlist.js help! for more info");
         return new PError("usage: node vpartlist.js modules/moduleToGetPartListOf.v");
     }
-    if (part_path.toLowerCase() === "help") {
+    if (args[0].toLowerCase() === "help") {
 
         _log("flags: -p(all) include full path to components");
         return new PError("usage: node vpartlist.js modules/moduleToGetPartListOf.v -p(ath)");
     }
+    //***************************************************************************************//
+    var part_path = path.resolve(args[0]);
+    var part_dir = path.dirname(part_path);
+    var part_ext = path.extname(part_path);
 
     var flags = {
         "p": false
     };
 
-    if (!fs.existsSync(part_path)) {
-        return new PError("Error: Can't find `" + part_path + "`, what's you smoking?");
-    }
-    if (part_ext.toLowerCase() !== ".v") {
-        return new PError("Error: Only `.v` yo! what's you drinking?");
-    }
-
-    for (var i = 0; i < args.length; i++) {
-        if (args[i] === "-p" || args[i] === "-path") {
-            flags.p = true;
-        }
-    }
-
-    var thatstick = new ZeroTrigger(); //lock
+    var thatstick = new ZeroTrigger();
     var tocheck = [part_path];
     var check_count = 0;
 
@@ -119,6 +102,20 @@ function vPartList(args, callback) {
     var mod_loco = {};
 
     var list = new List();
+
+    if (!fs.existsSync(part_path)) {
+        return new PError("Error: Can't find `" + part_path + "`, what's you smoking?");
+    }
+    if (part_ext.toLowerCase() !== ".v") {
+        return new PError("Error: Only `.v` yo! what's you drinking?");
+    }
+    //***************************************************************************************//
+
+    for (var i = 0; i < args.length; i++) {
+        if (args[i] === "-p" || args[i] === "-path") {
+            flags.p = true;
+        }
+    }
 
     getModulesfromDir(part_dir, /\.v$/, function(filename) {
         var mod = path.basename(filename);
@@ -135,7 +132,11 @@ function vPartList(args, callback) {
 
 
     function white_iverson(data) {
-        var barrel = data.split(/\s+/g); //any white space and tabs
+
+        //var rex = new RegExp('[ ,]+');
+        var rex = new RegExp(/\s+/g);
+        
+        var barrel = data.split(rex); //any white space and tabs
         for (var x = 0; x < barrel.length; x++) {
             var token = barrel[x] + ".v";
             //_log(token, modules.contains(token) && !list.has(mod_loco[token]))
@@ -156,7 +157,7 @@ function vPartList(args, callback) {
             readLines(input, white_iverson, yoZ_GetNextPart);
             return;
         }
-
+        
         var winnerwinnderchickendinner = tocheck.length === list.parts.length;
         if (winnerwinnderchickendinner) {
             _log("-----" + part_path, "Part List (" + tocheck.length + "/" + list.parts.length + ")-----");
