@@ -84,7 +84,7 @@ function vBuild(args, cb, undefined) {
             }
             console.log(mod.name);
             part_list = mod.partlist;
-            console.log(part_list);
+            console.log(part_list.join(" "));
         });
     }());
 }

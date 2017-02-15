@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/giang12/cs552#readme",
   "dependencies": {
-    "vpartlist": "~0.1.2"
+    "vpartlist": "~0.1.2",
+    "shelljs": "~0.7.6"
   }
 }
