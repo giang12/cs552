@@ -8,13 +8,11 @@ return require.main === module ?
 
 
 function vBuild(args, cb, undefined) {
-    require('events').EventEmitter.defaultMaxListeners = 0
+
     var _log = require.main === module ? console.log : (function() {});
-    var vPartList = require('./vpartlist.js');
+    var vPartList = require('vpartlist');
     var fs = require('fs');
     var path = require('path');
-    var dm = require('domain');
-    var mkdirp = require('mkdirp');
 
     var PError = function(err) {
         if (require.main === module) {
@@ -61,64 +59,32 @@ function vBuild(args, cb, undefined) {
     }
     //***************************************************************************************//
 
-    var part_path, part_ext, part_name, from_dir;
+    var part_path = path.resolve(args[0]),
+        part_ext = path.extname(part_path),
+        part_name = path.basename(part_path, part_ext),
+        from_dir = path.dirname(part_path);
+
+    var to_dir = path.join("./bin/", part_name); //default
+
     var thatstick = new ZeroTrigger();
     var part_list;
     //options
-    var to_dir = "./bin";
     var flags = {
         "z": false, //zip
         "t": false, //tarbar
     };
-    (function _init() {
-        new vPartList([
-            args[0],
-            "-path" //!important
-        ], function(list, err) {
+    (function _start() {
+        new vPartList(part_path, {
+            output: to_dir,
+            path: false,
+            verbose: true
+        }, function(mod, err) {
             if (err) {
                 throw new PError(err);
             }
-            part_list = list;
-            part_path = path.resolve(args[0]);
-            part_ext = path.extname(part_path);
-            part_name = path.basename(part_path, part_ext);
-            from_dir = path.dirname(part_path);
-            to_dir = path.join(to_dir, part_name);
-
-            mkdirp(to_dir, function(err) {
-                if (err) throw new PError(err);
-                _log("Building module " + part_name + " in " + to_dir);
-                _build(list);
-            });
-
+            console.log(mod.name);
+            part_list = mod.partlist;
+            console.log(part_list);
         });
     }());
-
-    function _build(_partlist) {
-        var d = dm.create();
-        d.on('error', _handleAllErrors);
-        d.run(function() {
-            for (var i = 0; i < _partlist.length; i++) {
-                thatstick.add();
-                _copy(_partlist[i], to_dir, _check);
-            }
-        });
-    }
-
-    function _check() {
-        _log("Sanity Checking module " + part_name + " (" + part_list.length + ") components");
-    }
-
-    function _copy(_part, to_dir, next) {
-        fs.createReadStream(path.resolve(_part))
-            .pipe(fs.createWriteStream(path.join(to_dir, path.basename(_part))))
-            .on('close', function(data) {
-                _log("Fetched " + _part);
-                thatstick.remove(next);
-            });
-    }
-
-    function _handleAllErrors(err) {
-        return new PError(err);
-    }
 }

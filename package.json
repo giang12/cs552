@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/giang12/cs552/issues"
   },
-  "homepage": "https://github.com/giang12/cs552#readme"
+  "homepage": "https://github.com/giang12/cs552#readme",
+  "dependencies": {
+    "vpartlist": "~0.1.2"
+  }
 }
