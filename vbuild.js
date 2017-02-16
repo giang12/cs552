@@ -66,6 +66,9 @@ function vBuild(args, cb, undefined) {
 
     var to_dir = path.join("./bin/", part_name); //default
 
+    //TODO : how to handle this yo
+    var repository = process.cwd() + "/modules"; 
+    //btw //__dirname returns the directory name of the directory containing the JavaScript source code file
     var thatstick = new ZeroTrigger();
     var part_list;
     //options
@@ -76,6 +79,7 @@ function vBuild(args, cb, undefined) {
     (function _start() {
         new vPartList(part_path, {
             output: to_dir,
+            repository: repository, 
             path: false,
             verbose: true
         }, function(mod, err) {
