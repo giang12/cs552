@@ -40,15 +40,15 @@ module rf (
 
 
    //accress registers
-   //r_16bit isnt2[7:0](.readdata(regs_out), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals));
-   r_16bit isnta0(.readdata(reg_0), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[0]));
-   r_16bit isnta1(.readdata(reg_1), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[1]));
-   r_16bit isnta2(.readdata(reg_2), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[2]));
-   r_16bit isnta3(.readdata(reg_3), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[3]));
-   r_16bit isnta4(.readdata(reg_4), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[4]));
-   r_16bit isnta5(.readdata(reg_5), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[5]));
-   r_16bit isnta6(.readdata(reg_6), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[6]));
-   r_16bit isnta7(.readdata(reg_7), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[7]));
+   //register_16bit isnt2[7:0](.readdata(regs_out), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals));
+   register_16bit isnta0(.readdata(reg_0), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[0]));
+   register_16bit isnta1(.readdata(reg_1), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[1]));
+   register_16bit isnta2(.readdata(reg_2), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[2]));
+   register_16bit isnta3(.readdata(reg_3), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[3]));
+   register_16bit isnta4(.readdata(reg_4), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[4]));
+   register_16bit isnta5(.readdata(reg_5), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[5]));
+   register_16bit isnta6(.readdata(reg_6), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[6]));
+   register_16bit isnta7(.readdata(reg_7), .clk(clk), .rst(rst), .writedata(writedata), .write(write_signals[7]));
 
    //read registers based on read selects
    mux8_1_16bit inst4[1:0](.In0(reg_0),

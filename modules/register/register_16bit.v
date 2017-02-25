@@ -1,4 +1,4 @@
-module r_16bit (
+module register_16bit(
            // Outputs
            readdata,
            // Inputs
