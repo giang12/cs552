@@ -1,3 +1,6 @@
+__work/**/*
+dump.*
+transcript
 node_modules/**/*
 *.sublime-workspace
 *.sublime-project

@@ -79,7 +79,7 @@ function vBuild(args, cb, undefined) {
     (function _start() {
         new vPartList(part_path, {
             output: to_dir,
-            repository: repository, 
+            repositories: repository, 
             path: false,
             verbose: true
         }, function(mod, err) {
