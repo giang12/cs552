@@ -81,14 +81,14 @@ function vBuild(args, cb, undefined) {
             output: to_dir,
             repositories: repository, 
             path: false,
-            verbose: true
+            verbose: false
         }, function(mod, err) {
             if (err) {
                 throw new PError(err);
             }
             console.log(mod.name);
             part_list = mod.partlist;
-            console.log(part_list.join(" "));
+            console.log(part_list.join("\n"));
         });
     }());
 }
