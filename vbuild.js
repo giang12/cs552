@@ -4,7 +4,7 @@ return require.main === module ?
             return console.log(err)
         }
         console.log(list.join(" "));
-    })) : (module.exports = vPartList);
+    })) : (module.exports = vBuild);
 
 
 function vBuild(args, cb, undefined) {

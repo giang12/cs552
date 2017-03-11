@@ -128,7 +128,7 @@ module proc_hier_bench();
    assign Inst = DUT.p0.fetch0.instr;
    
    assign RegWrite = DUT.p0.decode0.regFile0.write;
-   // Is register being written, one bit signal (1 means yes, 0 means no)
+   // Is memory being read, one bit signal (1 means yes, 0 means no)
    
    assign WriteRegister = DUT.p0.decode0.regFile0.writeregsel;
    // The name of the register being written to. (3 bit signal)
