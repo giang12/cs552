@@ -55,7 +55,7 @@ module control_unit(
 	// ALU functions (taken from alu.v)
 	localparam rll = 3'b000;
 	localparam sll = 3'b001;
-	localparam sra = 3'b010;
+	localparam ror = 3'b010;
 	localparam srl = 3'b011;
 	localparam ADD = 3'b100;
 	localparam OR =  3'b101;
@@ -63,8 +63,9 @@ module control_unit(
 	localparam AND = 3'b111;
 
 	//alu b selec (taken from execute.v)
-	localparam sel_data = 1'b0;
-	localparam sel_imm = 1'b1;
+	localparam sel_data = 2'b00;
+	localparam sel_imm = 2'b01;
+    localparam sel_zero = 2'b10;
 
 	//writeback DataSrcSel (taken from writeback.v)
 	localparam mem_data_out = 3'b000;
@@ -83,7 +84,8 @@ module control_unit(
 always @ (opcode or fn)
 begin
     casex({opcode, fn})
-	  //ADDI Rd, Rs, immediate
+	  
+	  //1: ADDI Rd, Rs, immediate
 	  7'b01000_xx:
 	  begin
 	    RegDst <= rt;
@@ -100,13 +102,466 @@ begin
 	    Cin <= FALSE;
 	    invA <= FALSE;
 	    invB <= FALSE;
-	    sign <= FALSE;
+	    sign <= TRUE;
 	  end
-	  //SUBI Rd, Rs, immediate
+	  
+	  //2: SUBI Rd, Rs, immediate
 	  7'b01001_xx:
 	  begin
 	    RegDst <= rt;
 	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= SUBI;
+	    Cin <= TRUE;
+	    invA <= TRUE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //3: XORI Rd, Rs, immediate
+	  7'b01010_xx:
+	  begin
+	    RegDst <= rt;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= XOR;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //4: ANDNI Rd, Rs, immediate	
+	  7'b01011_xx:
+	  begin
+	    RegDst <= rt;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= TRUE;
+	    sign <= FALSE;
+	  end
+
+	  //5: ROLI Rd, Rs, immediate
+	  7'b10100_xx:
+	  begin
+	    RegDst <= rt;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= rll;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //6: SLLI Rd, Rs, immediate	
+	  7'b10101_xx:
+	  begin
+	    RegDst <= rt;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= sll;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //7: RORI Rd, Rs, immediate	
+	  // we have to implement this instruction in ALU
+	  7'b10110_xx:
+	  begin
+	    RegDst <= rt;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ror;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //8: SRLI Rd, Rs, immediate	
+	  7'b10111_xx:
+	  begin
+	    RegDst <= rt;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= srl;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //9: ST Rd, Rs, immediate
+	  7'b10000_xx:
+	  begin
+	    RegDst <= rt;
+	    RegWriteEn <= FALSE;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    MemEn <= TRUE;
+	    MemWr <= TRUE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //10: LD Rd, Rs, immediate	
+	  7'b10001_xx:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= mem_data_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= TRUE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //11: STU Rd, Rs, immediate	
+	  7'b10011_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= TRUE;
+	    MemWr <= TRUE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+
+  	  //12: BTR Rd, Rs	
+	  7'b11001_xx:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= btr_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //13: ADD Rd, Rs, Rt	
+	  7'b11011_00:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_data;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //14: SUB Rd, Rs, Rt	
+	  7'b11011_01:
+	  begin
+	   	RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_data;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= TRUE;
+	    invA <= TRUE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //15: XOR Rd, Rs, Rt	
+	  7'b11011_10:
+	  begin
+	   	RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_data;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= XOR;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //16: ANDN Rd, Rs, Rt	
+	  7'b11011_11:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= AND;
+	    Cin <= FALSE;
+	    invA <= TRUE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //17: ROL Rd, Rs, Rt	
+	  7'b11010_00:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= rll;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //18: SLL Rd, Rs, Rt	
+	  7'b11010_01:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= sll;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //19: ROR Rd, Rs, Rt
+	  7'b11010_10:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ror;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //20: SRL Rd, Rs, Rt	
+	  7'b11010_11:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= srl;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //21: SEQ Rd, Rs, Rt	
+	  7'b11100_xx:
+	  //22: SLT Rd, Rs, Rt	
+	  7'b11101_xx:
+	  //23: SLE Rd, Rs, Rt	
+	  7'b11110_xx:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= cond_flag;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= SUB;
+	    Cin <= TRUE;
+	    invA <= TRUE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  // 24: SCO Rd, Rs, Rt	
+	  7'b11111_xx:
+	  begin
+	    RegDst <= rd;
+	    RegDataSrcSel <= cond_flag;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //25: BEQZ Rs, immediate		
+	  7'b01100_xx:
+	  //26: BNEZ Rs, immediate	
+	  7'b01101_xx:
+	  //27: BLTZ Rs, immediate	
+	  7'b01110_xx:
+	  //28: BGEZ Rs, immediate		
+	  7'b01111_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_zero;
+	    RegWriteEn <= FALSE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= TRUE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //29: LBI Rs, immediate	
+	  7'b11000_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= imm_8_ext;
 	    alu_b_sel <= sel_imm;
 	    RegWriteEn <= TRUE;
 	    MemEn <= FALSE;
@@ -120,6 +575,134 @@ begin
 	    invA <= FALSE;
 	    invB <= FALSE;
 	    sign <= FALSE;
+	  end
+
+	  //30: SLBI Rs, immediate
+	  7'b10010_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= slbi_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //31: J displacement	
+	  7'b00100_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= FALSE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= TRUE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  //32: JR Rs, immediate	
+	  7'b00101_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= FALSE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= TRUE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+	  
+	  //33: JAL displacement	
+	  7'b00110 _xx:
+	  //34: JALR Rs, immediate
+	  7'b00111_xx:
+	  begin
+	    RegDst <= r7;
+	    RegDataSrcSel <= pc_plus_two;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= TRUE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= FALSE;
+	  end
+
+	  /* 
+	  not implemented yet
+	  //35: siic Rs	
+	  //36: NOP / RTI	
+	  */
+
+	  //37: HALT
+	  7'b00000_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= TRUE;
+	    MemWr <= TRUE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
+	  end
+
+	  //38: NOP
+	  7'b00001_xx:
+	  begin
+	    RegDst <= rs;
+	    RegDataSrcSel <= alu_out;
+	    alu_b_sel <= sel_imm;
+	    RegWriteEn <= TRUE;
+	    MemEn <= TRUE;
+	    MemWr <= TRUE;
+	    SignedExt <= TRUE;
+	    Branch <= FALSE;
+	    Jump <= FALSE;
+	    Exception <= FALSE;
+	    alu_op <= ADD;
+	    Cin <= FALSE;
+	    invA <= FALSE;
+	    invB <= FALSE;
+	    sign <= TRUE;
 	  end
 
     endcase
