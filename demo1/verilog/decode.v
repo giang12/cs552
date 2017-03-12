@@ -1,51 +1,62 @@
-module decode( Instr, );
+module decode( 
+	//output
+	output [15:0] data1, //from register file
+	output [15:0] data2,
 
-    // control module
-    input [15:0] Instr;
-    output [2:0] RegDataSrc, ALUSrc2, Alu_Op;
+	output alu_b_sel, //select B input for alu
+	output [2:0] alu_op, //alu opcode
+	output Cin,
+    output invA,
+    output invB,
+    output sign,
 
-    output 	MemEn, 
-    		MemWr, 
-    		Branch, 
-    		Jump, 
-    		Exception,
-    		Flag_word
-    		MemToReg, 
-    		Cin, 
-    		invA, 
-    		invB, 
-    		sign, 
-    		dump;
-    wire [1:0] RegDst;
+	output [2:0] RegDataSrcSel, //for write stage
+	output RegWriteEn, //Determine if the result will be written back to the register file. should exposed??
+	
+	output MemEn, //should en data memory?
+	output MemWr, //should write result to data memory
+
+	output Branch, // branch flag
+	output Jump, //jump flag
+	output Dump, //create dump, (e.g halting)
+	output Exception, // there is error, 
+	//input
+	input [15:0] Instr,
+	input [15:0] wb_data, //wb data
+	input clk,
+	input rst
+	);
+
+    wire [1:0] RegDst; //select re
     wire SignedExt; 
 
     // register file
-    input clk, rst;
-    input [15:0] writedata;
-    output [15:0] read1data, read2data;
-    wire [15:0] reg1_data, reg2_data;
-    assign read1data = reg1_data;
-    assign read2data = reg2_data;
-
-
     wire [2:0] writeregsel; 
-    wire err; // TODO ???
-    wire RegWrite;
+    wire err;
     
-    
-  
-    // ext modules
-    output [15:0] instrEightExt, instrElevenExt, instrFiveExt; 
-    output [15:0] btr_out;
-	
+   	rf_bypass	reg_file(	//output
+							.read1data(data1), 
+							.read2data(data2), 
+							.err(err),
+							//input
+                           	.clk(clk), 
+                           	.rst(rst), 
+                           	.read1regsel(Instr[10:8]), 
+                           	.read2regsel(Instr[7:5]), 
+                           	.writeregsel(writeregsel), 
+                           	.writedata(wb_data), //supplied by Exec
+                           	.write(RegWriteEn)
+                        );
+
+	// control module
     control_unit ctrl(  //input
     					.opcode(Instr[15:11]),
     					.fn(Instr[1:0]),
+
     					// outputs 
-                        .ALUSrc2(ALUSrc2), 
                         .RegDst(RegDst),
-                        .RegDataSrc(RegDataSrc), 
-                        .RegWriteEn(RegWrite), 
+                        .RegDataSrcSel(RegDataSrcSel), 
+                        .RegWriteEn(RegWriteEn), 
 
 
                         .MemEn(MemEn), 
@@ -54,37 +65,30 @@ module decode( Instr, );
                         .SignedExt(SignedExt),  
                         .Branch(Branch), 
                         .Jump(Jump), 
+                        .Dump(Dump),
                         .Exception(Exception), 
-                        
-                        .Op(Op), 
+
+                        .alu_b_sel(alu_b_sel),
+                        .alu_op(alu_op), 
                         .Cin(Cin), 
                         .invA(invA), 
-                        .invB(invB), 
+                        .invB(invB),
                         .sign(sign)
                         );
 
-    mux4_1_4bit mux0(  // output
-                        .out(writeregsel),
-                        // inputs
-                        .sel(RegDst), 
-                        .in0(Instr[4:2]), //rd
-                        .in1(Instr[7:5]), //rt
-                        .in2(Instr[10:8]), //rs
-                        .in3(3'b111) //Reg7
-                    );
+    mux4_1_3bit wb_sel_mux(  // output
+	                        .Out(writeregsel),
+	                        // inputs
+	                        .S(RegDst), 
+	                        .InA(Instr[4:2]), //rd 0
+	                        .InB(Instr[7:5]), //rt 1
+	                        .InC(Instr[10:8]), //rs 2
+	                        .InD(3'b111) //Reg7 3
+	                    );
 
 
 
-	rf_bypass	reg_file(	.read1data(data1), 
-							.read2data(data2), 
-							.err(err),
-                           	.clk(clk), 
-                           	.rst(rst), 
-                           	.read1regsel(Instr[10:8]), 
-                           	.read2regsel(Instr[7:5]), 
-                           	.writeregsel(writeregsel), .writedata(writedata), 
-                           	.write(RegWrite)
-                        );
+
 
 	//extend 5
 	//extend 8

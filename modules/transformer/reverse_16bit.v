@@ -1,4 +1,4 @@
-module reverse (in, out);
+module reverse_16bit(in, out);
 
 	input [15:0] in;
 	output [15:0] out;

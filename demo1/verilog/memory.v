@@ -16,4 +16,4 @@ module memory(readData, addr, writeData, en, write, halt, clk, rst);
                     );
 
 
-endmodule 
+endmodule

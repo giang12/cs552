@@ -1,4 +1,4 @@
-module fetch(instr, pc, pcPlusTwo, pcNext, clk, rst, dump, exception);
+module fetch(instr, pc, pcPlusTwo, pcNext, dump, exception, clk, rst);
 
 	input clk, rst, dump, exception;
 	input [15:0] pcNext;
@@ -17,7 +17,7 @@ module fetch(instr, pc, pcPlusTwo, pcNext, clk, rst, dump, exception);
 
     //maybe move to execute???
     mux2_1_16bit pc_next_mux(	.InA(pcNext), 
-    							.InB(pc), 
+    							.InB(pc_current), 
     							.S(exception), 
     							.Out(next_pc)
     						);
@@ -30,6 +30,7 @@ module fetch(instr, pc, pcPlusTwo, pcNext, clk, rst, dump, exception);
 	           // Inputs
 	           .clk(clk), .rst(rst), .writedata(next_pc), .write(1'b1)
 	           );
+
 	//instr mem
 	memory2c InstrMEM(	.data_out(instr),
 						.data_in(16'b0),
