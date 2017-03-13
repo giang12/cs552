@@ -20,8 +20,7 @@ module decode(
 
     output Branch, // branch flag
     output Jump, //jump flag
-    output Dump, //create dump, (e.g halting)
-    output Exception, // there is error, 
+    output Exception, // there is error or create dump, (e.g halting)
     //input
     input [15:0] Instr,
     input [15:0] wb_data, //wb data
@@ -36,7 +35,7 @@ module decode(
     wire [2:0] writeregsel;
     wire err;
     
-    rf_bypass   regFile0(   //output
+    rf   regFile0(   //output
                             .read1data(data1), 
                             .read2data(data2), 
                             .err(err),
@@ -68,7 +67,6 @@ module decode(
                         .SignedExt(SignedExt),  
                         .Branch(Branch), 
                         .Jump(Jump), 
-                        .Dump(Dump),
                         .Exception(Exception), 
 
                         .alu_b_sel(alu_b_sel),

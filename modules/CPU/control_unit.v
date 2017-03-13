@@ -1,5 +1,3 @@
-
-
 module control_unit(  
 	//input
 	opcode,
@@ -17,7 +15,6 @@ module control_unit(
     SignedExt,  
     Branch, 
     Jump, 
-    Dump,
     Exception, 
 
     alu_b_sel,
@@ -44,7 +41,6 @@ module control_unit(
     output SignedExt;
     output Branch;
     output Jump;
-    output Dump;
     output Exception;
 
     output [1:0] alu_b_sel;
@@ -64,13 +60,11 @@ module control_unit(
     	SignedExt,
     	Branch,
     	Jump,
-    	//Dump,
     	Exception,
     	Cin,
     	invA,
     	invB,
     	sign;
-    assign Dump = 1'b0; //TEMPPPP
 	// RegDst
 	localparam rd = 2'b00;
 	localparam rt = 2'b01;
@@ -183,7 +177,7 @@ begin
 	    Branch <= FALSE;
 	    Jump <= FALSE;
 	    Exception <= FALSE;
-	    alu_op <= ADD;
+	    alu_op <= AND;
 	    Cin <= FALSE;
 	    invA <= FALSE;
 	    invB <= TRUE;
@@ -587,8 +581,8 @@ begin
 	  begin
 	    RegDst <= rs;
 	    RegDataSrcSel <= imm_8_ext;
-	    alu_b_sel <= sel_imm;
 	    RegWriteEn <= TRUE;
+	    alu_b_sel <= sel_imm;
 	    MemEn <= FALSE;
 	    MemWr <= FALSE;
 	    SignedExt <= TRUE;
@@ -696,18 +690,18 @@ begin
 	    RegDst <= rs;
 	    RegDataSrcSel <= alu_out;
 	    alu_b_sel <= sel_imm;
-	    RegWriteEn <= TRUE;
-	    MemEn <= TRUE;
-	    MemWr <= TRUE;
-	    SignedExt <= TRUE;
+	    RegWriteEn <= FALSE;
+	    MemEn <= FALSE;
+	    MemWr <= FALSE;
+	    SignedExt <= FALSE;
 	    Branch <= FALSE;
 	    Jump <= FALSE;
-	    Exception <= FALSE;
+	    Exception <= TRUE;
 	    alu_op <= ADD;
 	    Cin <= FALSE;
 	    invA <= FALSE;
 	    invB <= FALSE;
-	    sign <= TRUE;
+	    sign <= FALSE;
 	  end
 
 	  //38: NOP

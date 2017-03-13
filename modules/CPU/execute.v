@@ -22,7 +22,7 @@ module execute(
       input invA, 
       input invB, 
       input sign,
-      input dump, 
+      input halt, 
       input jump, 
       input branch
    );
@@ -116,6 +116,6 @@ mux4_1 mux7(.InA(EQZ), .InB(NEZ), .InC(LTZ), .InD(GEZ),
 and2             inst12   (.in1(branch), .in2(branch_taken), .out(should_branch));
 or2              brorjmp   (.in1(should_branch), .in2(jump), .out(br_jmp));
 mux2_1_16bit     mux9    (.InA(pc_plus_two), .InB(pc_val) , .S(br_jmp), .Out(branch_target));
-mux2_1_16bit     mux10   (.InA(branch_target), .InB(pc_plus_two) , .S(dump), .Out(next));
+mux2_1_16bit     mux10   (.InA(branch_target), .InB(pc_plus_two) , .S(halt), .Out(next));
 
 endmodule

@@ -21,12 +21,12 @@ module proc (/*AUTOARG*/
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
-   
+   assign err = 1'b0;
    /* your code here */
    wire [15:0] Instr, PC, PC_Plus_Two;
 
    wire [15:0] data1, data2;
-   wire Branch, Jump, Dump, Exception, WBen;
+   wire Branch, Jump, Exception, WBen;
    wire [2:0] alu_op; wire [1:0] alu_b_sel;
    wire Cin, invA, invB, sign, MemEn, MemWr;
    wire [2:0] RegDataSrc;
@@ -46,8 +46,7 @@ module proc (/*AUTOARG*/
       .pcPlusTwo(PC_Plus_Two), 
       //input
       .pcNext(PC_Next), 
-      .dump(Dump), 
-      .exception(Exception),
+      .halt(Exception), 
       .clk(clk), 
       .rst(rst)
    );
@@ -76,8 +75,7 @@ module proc (/*AUTOARG*/
 
       .Branch(Branch), // branch flag
       .Jump(Jump), //jump flag
-      .Dump(Dump), //halting create dump
-      .Exception(Exception), // there is error
+      .Exception(Exception), // there is error, or halting
 
       //input
       .Instr(Instr),
@@ -111,7 +109,7 @@ module proc (/*AUTOARG*/
       .invB(invB), 
       .sign(sign), 
 
-      .dump(Dump),
+      .halt(Exception),
       .jump(Jump), 
       .branch(Branch)
    );
@@ -126,7 +124,7 @@ module proc (/*AUTOARG*/
       .writeData(data2), 
       .en(MemEn), 
       .write(MemWr), 
-      .halt(Dump), //createdump
+      .halt(Exception), //createdump
       .clk(clk), 
       .rst(rst)
    );

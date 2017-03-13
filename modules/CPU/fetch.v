@@ -1,6 +1,6 @@
-module fetch(instr, pcCurrent, pcPlusTwo, pcNext, dump, exception, clk, rst);
+module fetch(instr, pcCurrent, pcPlusTwo, pcNext, halt, clk, rst);
 
-	input clk, rst, dump, exception;
+	input clk, rst, halt;
 	input [15:0] pcNext;
 
 	output [15:0] pcCurrent;
@@ -18,7 +18,7 @@ module fetch(instr, pcCurrent, pcPlusTwo, pcNext, dump, exception, clk, rst);
     //maybe move to execute???
     mux2_1_16bit pc_next_mux(	.InA(pcNext), 
     							.InB(pc_current), 
-    							.S(exception), 
+    							.S(halt), 
     							.Out(next_pc)
     						);
 
