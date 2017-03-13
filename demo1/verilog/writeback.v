@@ -7,7 +7,7 @@ module writeback(
 	input [15:0] slbi_out,
 	input [15:0] btr_out,
 	input [15:0] pc_plus_two,
-	input [15:0] cond_flag,
+	input [15:0] cond_out,
 	input [15:0] constant
 	);
   
@@ -23,7 +23,7 @@ module writeback(
           .In3(slbi_out),
           .In4(btr_out),
           .In5(pc_plus_two),
-          .In6(cond_flag),
+          .In6(cond_out),
           .In7(constant)
         );
 

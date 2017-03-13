@@ -2,7 +2,9 @@ module decode(
 	//output
 	output [15:0] data1, //from register file
 	output [15:0] data2,
-
+    output [15:0] imm_5_ext,
+    output [15:0] imm_8_ext,
+    output [15:0] imm_11_ext,
 	output alu_b_sel, //select B input for alu
 	output [2:0] alu_op, //alu opcode
 	output Cin,
@@ -31,7 +33,7 @@ module decode(
     wire SignedExt; 
 
     // register file
-    wire [2:0] writeregsel; 
+    wire [2:0] writeregsel;
     wire err;
     
    	rf_bypass	reg_file(	//output
@@ -41,8 +43,8 @@ module decode(
 							//input
                            	.clk(clk), 
                            	.rst(rst), 
-                           	.read1regsel(Instr[10:8]), 
-                           	.read2regsel(Instr[7:5]), 
+                           	.read1regsel(Instr[10:8]),  //rs
+                           	.read2regsel(Instr[7:5]), //rt
                            	.writeregsel(writeregsel), 
                            	.writedata(wb_data), //supplied by Exec
                            	.write(RegWriteEn)
@@ -50,6 +52,7 @@ module decode(
 
 	// control module
     control_unit ctrl(  //input
+    					
     					.opcode(Instr[15:11]),
     					.fn(Instr[1:0]),
 
@@ -89,8 +92,8 @@ module decode(
 
 
 
+    ext5_16 ext0(.in(Instr[4:0]), .signext(SignedExt), .out(imm_5_ext));
+    ext8_16 ext1(.in(Instr[7:0]), .signext(SignedExt), .out(imm_8_ext));
+    ext11_16 ext3(.in(Instr[10:0]), .signext(SignedExt), .out(imm_11_ext));
 
-	//extend 5
-	//extend 8
-	//extend 11
 endmodule

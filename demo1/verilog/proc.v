@@ -33,7 +33,7 @@ module proc (/*AUTOARG*/
    wire [15:0] imm_5_ext, imm_8_ext, imm_11_ext;
 
    wire [15:0] PC_Next; //next address from exceute, either PC+2 or JUMP/branch
-   wire [15:0] alu_out, slbi_out, btr_out, cond_flag;
+   wire [15:0] alu_out, slbi_out, btr_out, cond_out;
 
    wire [15:0] mem_data_out;
 
@@ -92,7 +92,7 @@ module proc (/*AUTOARG*/
       .alu_out(alu_out), 
       .slbi_out(slbi_out),
       .btr_out(btr_out),
-      .flag(cond_flag), 
+      .cond_out(cond_out), 
       // Inputs
       .instr(Instr),
       .pc(PC), 
@@ -125,7 +125,7 @@ module proc (/*AUTOARG*/
       .writeData(data2), 
       .en(MemEn), 
       .write(MemWr), 
-      .halt(dump), //createdump
+      .halt(Dump), //createdump
       .clk(clk), 
       .rst(rst)
    );
@@ -142,6 +142,7 @@ module proc (/*AUTOARG*/
       .slbi_out(slbi_out),
       .btr_out(btr_out),
       .pc_plus_two(PC_Plus_Two),
+      .cond_out()
       .constant(16'bxxxx_xxxx_xxxx_xxxx)// should never
    );
    
