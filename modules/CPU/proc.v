@@ -27,8 +27,8 @@ module proc (/*AUTOARG*/
 
    wire [15:0] data1, data2;
    wire Branch, Jump, Dump, Exception, WBen;
-   wire [2:0] alu_op;
-   wire alu_b_sel, Cin, invA, invB, sign, MemEn, MemWr;
+   wire [2:0] alu_op; wire [1:0] alu_b_sel;
+   wire Cin, invA, invB, sign, MemEn, MemWr;
    wire [2:0] RegDataSrc;
    wire [15:0] imm_5_ext, imm_8_ext, imm_11_ext;
 
@@ -39,10 +39,10 @@ module proc (/*AUTOARG*/
 
    wire [15:0] WriteBack_Data;
 
-   fetch Fetch(   
+   fetch fetch0(   
       //output
       .instr(Instr), 
-      .pc(PC), 
+      .pcCurrent(PC), 
       .pcPlusTwo(PC_Plus_Two), 
       //input
       .pcNext(PC_Next), 
@@ -53,7 +53,7 @@ module proc (/*AUTOARG*/
    );
    //decode
    
-   decode Decode( 
+   decode decode0( 
       //output
       .data1(data1), //from register file
       .data2(data2),
@@ -76,8 +76,8 @@ module proc (/*AUTOARG*/
 
       .Branch(Branch), // branch flag
       .Jump(Jump), //jump flag
-      .Dump(Dump),
-      .Exception(Exception), // there is error, or halting
+      .Dump(Dump), //halting create dump
+      .Exception(Exception), // there is error
 
       //input
       .Instr(Instr),
@@ -86,7 +86,7 @@ module proc (/*AUTOARG*/
       .rst(rst)
    );
    //exec
-   execute Exec(
+   execute execute0(
       // Outputs
       .next(PC_Next), 
       .alu_out(alu_out), 
@@ -111,13 +111,14 @@ module proc (/*AUTOARG*/
       .invB(invB), 
       .sign(sign), 
 
+      .dump(Dump),
       .jump(Jump), 
       .branch(Branch)
    );
 
    //MEM
    
-   memory Mem(  
+   memory memory0(  
       //output
       .readData(mem_data_out), 
       //input
@@ -142,7 +143,7 @@ module proc (/*AUTOARG*/
       .slbi_out(slbi_out),
       .btr_out(btr_out),
       .pc_plus_two(PC_Plus_Two),
-      .cond_out()
+      .cond_out(cond_out),
       .constant(16'bxxxx_xxxx_xxxx_xxxx)// should never
    );
    

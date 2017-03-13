@@ -2,35 +2,61 @@
 
 module control_unit(  
 	//input
-	input [4:0] opcode,
-	input [1:0] fn,
+	opcode,
+	fn,
 
 	// outputs 
-    .RegDst(RegDst),
-    .RegDataSrcSel(), 
-    .RegWriteEn(RegWriteEn), 
+    RegDst,
+    RegDataSrcSel, 
+    RegWriteEn, 
 
 
-    .MemEn(MemEn), 
-    .MemWr(MemWr), 
+    MemEn, 
+    MemWr, 
 
-    .SignedExt(SignedExt),  
-    .Branch(Branch), 
-    .Jump(Jump), 
-    .Dump(Dump),
-    .Exception(Exception), 
+    SignedExt,  
+    Branch, 
+    Jump, 
+    Dump,
+    Exception, 
 
-    .alu_b_sel(alu_b_sel),
-    .alu_op(alu_op), 
-    .Cin(Cin), 
-    .invA(invA), 
-    .invB(invB),
-    .sign(sign)
+    alu_b_sel,
+    alu_op, 
+    Cin, 
+    invA, 
+    invB,
+    sign
     );
 
-	
+		//input
+	input [4:0] opcode;
+	input [1:0] fn;
+
+	// outputs 
+    output [1:0] RegDst;
+    output [2:0] RegDataSrcSel;
+    output RegWriteEn;
+
+
+    output MemEn;
+    output MemWr; 
+
+    output SignedExt;
+    output Branch;
+    output Jump;
+    output Dump;
+    output Exception;
+
+    output [1:0] alu_b_sel;
+    output [2:0] alu_op;
+    output Cin;
+    output invA; 
+    output invB;
+    output sign;
+
 	reg [2:0] alu_op;
     reg	[1:0] RegDst;
+    reg [1:0] alu_b_sel;
     reg [2:0] RegDataSrcSel;
     reg RegWriteEn, 
     	MemEn, 
@@ -38,19 +64,18 @@ module control_unit(
     	SignedExt,
     	Branch,
     	Jump,
-    	Dump,
+    	//Dump,
     	Exception,
-    	alu_b_sel,
     	Cin,
     	invA,
     	invB,
     	sign;
-    	
+    assign Dump = 1'b0; //TEMPPPP
 	// RegDst
-	localparam rd = 1'b00;
-	localparam rt = 1'b01;
-	localparam rs = 1'b10;
-	localparam r7 = 1'b11;                       .
+	localparam rd = 2'b00;
+	localparam rt = 2'b01;
+	localparam rs = 2'b10;
+	localparam r7 = 2'b11;
 
 	// ALU functions (taken from alu.v)
 	localparam rll = 3'b000;
@@ -118,7 +143,7 @@ begin
 	    Branch <= FALSE;
 	    Jump <= FALSE;
 	    Exception <= FALSE;
-	    alu_op <= SUBI;
+	    alu_op <= ADD;
 	    Cin <= TRUE;
 	    invA <= TRUE;
 	    invB <= FALSE;
@@ -490,9 +515,9 @@ begin
 	  //21: SEQ Rd, Rs, Rt	
 	  7'b11100_xx:
 	  //22: SLT Rd, Rs, Rt	
-	  7'b11101_xx:
+	  //7'b11101_xx:
 	  //23: SLE Rd, Rs, Rt	
-	  7'b11110_xx:
+	  //7'b11110_xx:
 	  begin
 	    RegDst <= rd;
 	    RegDataSrcSel <= cond_flag;
@@ -504,7 +529,7 @@ begin
 	    Branch <= FALSE;
 	    Jump <= FALSE;
 	    Exception <= FALSE;
-	    alu_op <= SUB;
+	    alu_op <= ADD;
 	    Cin <= TRUE;
 	    invA <= TRUE;
 	    invB <= FALSE;
@@ -534,11 +559,11 @@ begin
 	  //25: BEQZ Rs, immediate		
 	  7'b01100_xx:
 	  //26: BNEZ Rs, immediate	
-	  7'b01101_xx:
+	  //7'b01101_xx:
 	  //27: BLTZ Rs, immediate	
-	  7'b01110_xx:
+	  //7'b01110_xx:
 	  //28: BGEZ Rs, immediate		
-	  7'b01111_xx:
+	  //7'b01111_xx:
 	  begin
 	    RegDst <= rs;
 	    RegDataSrcSel <= alu_out;
@@ -638,9 +663,9 @@ begin
 	  end
 	  
 	  //33: JAL displacement	
-	  7'b00110 _xx:
+	  7'b00110_xx:
 	  //34: JALR Rs, immediate
-	  7'b00111_xx:
+	  //7'b00111_xx:
 	  begin
 	    RegDst <= r7;
 	    RegDataSrcSel <= pc_plus_two;

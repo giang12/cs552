@@ -1,14 +1,14 @@
-module fetch(instr, pc, pcPlusTwo, pcNext, dump, exception, clk, rst);
+module fetch(instr, pcCurrent, pcPlusTwo, pcNext, dump, exception, clk, rst);
 
 	input clk, rst, dump, exception;
 	input [15:0] pcNext;
 
-	output [15:0] pc;
+	output [15:0] pcCurrent;
 	output [15:0] pcPlusTwo;
 	output [15:0] instr;
 
   	wire [15:0] pc_current;
-    assign pc = pc_current;
+    assign pcCurrent = pc_current;
 
     wire G_foo;
     wire P_foo;
@@ -34,7 +34,7 @@ module fetch(instr, pc, pcPlusTwo, pcNext, dump, exception, clk, rst);
 	//instr mem
 	memory2c InstrMEM(	.data_out(instr),
 						.data_in(16'b0),
-						.addr(pc), 
+						.addr(pc_current), 
 						.enable(1'b1), 
 						.wr(1'b0), 
 						.createdump(1'b0), //dump ?

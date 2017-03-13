@@ -11,6 +11,7 @@ module alu_hier_bench;
    reg 	sign;
    wire [15:0] Out;
    wire 	 Ofl;
+   wire 	 Cout;
    wire 	 Z;
 
    reg           fail;
@@ -21,7 +22,7 @@ module alu_hier_bench;
    reg 	 ExZ;
    integer idx;
    
-   alu_hier DUT (.A(A_pre_inv), .B(B_pre_inv), .Cin(Cin), .Op(Op), .invA(invA), .invB(invB), .sign(sign), .Out(Out), .Ofl(Ofl), .Z(Z));
+   alu_hier DUT (.A(A_pre_inv), .B(B_pre_inv), .Cin(Cin), .Op(Op), .invA(invA), .invB(invB), .sign(sign), .Out(Out), .Ofl(Ofl), .Cout(Cout), .Z(Z));
    
    initial
      begin

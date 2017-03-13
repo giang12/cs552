@@ -1,6 +1,6 @@
 
 
-module alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
+module alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Cout, Z);
    
         input [15:0] A;
         input [15:0] B;
@@ -11,6 +11,7 @@ module alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
         input sign;
         output [15:0] Out;
         output Ofl;
+        output Cout;
         output Z;
 
    /*
@@ -19,9 +20,9 @@ module alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
     wire [15:0] inA, inB;
     wire [15:0] shifter_out, and_out, xor_out, or_out, add_out, arithmetic_out;
 
-    wire g_out, p_out, c_out, ofl_out; //use to calculate carryout (G+P&Cin) and Overflow (need carryout, msb: sum A B and sign)
+    wire g_out, p_out, ofl_out; //use to calculate carryout (G+P&Cin) and Overflow (need carryout, msb: sum A B and sign)
 
-    assign c_out = g_out | (p_out & Cin);
+    assign Cout = g_out | (p_out & Cin);
 
     inverter_16bit inst[1:0](.in({A,B}), .inv({invA, invB}), .out({inA, inB})); //condition inputs
 
@@ -41,7 +42,7 @@ module alu (A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
     nor16 inst7(.in(Out), .out(Z));
 
     //overflow detection
-    overflow_detector inst8(.msbA(inA[15]), .msbB(inB[15]), .msbS(add_out[15]), .Cout(c_out), .Sign(sign), .Ofl(ofl_out));
+    overflow_detector inst8(.msbA(inA[15]), .msbB(inB[15]), .msbS(add_out[15]), .Cout(Cout), .Sign(sign), .Ofl(ofl_out));
 
     and2 inst9(.in1(Op[2]), .in2(ofl_out), .out(Ofl));
     //assign Ofl = Op[2] ? ofl_out : 0; //no ofl on shifting

@@ -14,9 +14,9 @@ module writeback(
 
   mux8_1_16bit wb_mux(
           // Outputs
-          .out(data),
+          .Out(data),
           // Inputs
-          .sel(DataSrcSel),
+          .S(DataSrcSel),
           .In0(mem_data_out),
           .In1(alu_out),
           .In2(imm_8_ext),

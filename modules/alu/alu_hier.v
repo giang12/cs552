@@ -1,4 +1,4 @@
-module alu_hier(A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
+module alu_hier(A, B, Cin, Op, invA, invB, sign, Out, Ofl, Cout, Z);
 
    input [15:0] A;
    input [15:0] B;
@@ -9,6 +9,7 @@ module alu_hier(A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
    input sign;
    output [15:0] Out;
    output Ofl;
+   output Cout;
    output Z;
 
    wire clk;
@@ -29,6 +30,7 @@ module alu_hier(A, B, Cin, Op, invA, invB, sign, Out, Ofl, Z);
           // Outputs
           .Out                          (Out[15:0]),
           .Ofl                          (Ofl),
+          .Cout                         (Cout),
           .Z                            (Z),
           // Inputs
           .A                            (A[15:0]),
