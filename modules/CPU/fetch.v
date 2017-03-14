@@ -32,6 +32,8 @@ module fetch(instr, pcCurrent, pcPlusTwo, pcNext, halt, clk, rst);
 	           );
 
 	//instr mem
+	// memory2c.syn.v, dont remove this so vbuild can pick it up, hackie
+	
 	memory2c InstrMEM(	.data_out(instr),
 						.data_in(16'b0),
 						.addr(pc_current), 
