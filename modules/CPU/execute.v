@@ -87,6 +87,7 @@ alu_cond_set conds(
       .LEZ(LEZ),
       .NEZ(NEZ),
       //input
+      .Ofl(Ofl),
       .Z(Zero),
       .msb(alu_out[15]),
       .sign(sign)

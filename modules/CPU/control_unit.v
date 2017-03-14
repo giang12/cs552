@@ -520,7 +520,7 @@ begin
 	    sign <= TRUE;
 	    MemEn <= FALSE;
 	    MemWr <= FALSE;
-	    SignedExt <= FALSE;
+	    SignedExt <= TRUE;
 	    Branch <= FALSE;
 	    Jump <= FALSE;
 	    Exception <= FALSE;
@@ -539,7 +539,7 @@ begin
 	    sign <= TRUE;
 	    MemEn <= FALSE;
 	    MemWr <= FALSE;
-	    SignedExt <= FALSE;
+	    SignedExt <= TRUE;
 	    Branch <= FALSE;
 	    Jump <= FALSE;
 	    Exception <= FALSE;
@@ -558,7 +558,7 @@ begin
 	    sign <= TRUE;
 	    MemEn <= FALSE;
 	    MemWr <= FALSE;
-	    SignedExt <= FALSE;
+	    SignedExt <= TRUE;
 	    Branch <= FALSE;
 	    Jump <= FALSE;
 	    Exception <= FALSE;
@@ -577,7 +577,7 @@ begin
 	    sign <= TRUE;
 	    MemEn <= FALSE;
 	    MemWr <= FALSE;
-	    SignedExt <= FALSE;
+	    SignedExt <= TRUE;
 	    Branch <= FALSE;
 	    Jump <= FALSE;
 	    Exception <= FALSE;
