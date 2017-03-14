@@ -27,25 +27,8 @@ module execute(
       input branch
    );
 
-wire [15:0] data1_leftshift8;
-wire [15:0] alu_data2_in;
-
-wire cond_set;
-wire  Ofl, 
-      Cout,
-      Zero,
-      EQZ, //=0
-      NEZ, //!=0
-      LTZ, //<0
-      LEZ, //<=0
-      GEZ; //>=0
-
-wire jump_ctr, branch_ctr, branch_taken, should_branch, br_jmp, pcOut;
-wire [15:0] pc_a_src;
-wire [15:0] pc_b_src;
-wire [15:0] pc_val;
-wire [15:0] branch_target;
 //SLBI path
+wire [15:0] data1_leftshift8;
 shifter leftshift8(.In(data1), .Cnt(4'b1000), .Op(2'b01), .Out(data1_leftshift8));
 or2_16bit    slbior(.in1(data1_leftshift8), .in2(imm_8_ext), .out(slbi_out));
 
@@ -53,7 +36,8 @@ or2_16bit    slbior(.in1(data1_leftshift8), .in2(imm_8_ext), .out(slbi_out));
 reverse_16bit btr(.in(data1), .out(btr_out));
 
 //Arithmetic
-
+wire [15:0] alu_data2_in;
+wire  Ofl, Cout, N, Zero;
 mux4_1_16bit alu_b_src(
 	//input
 	.InA(data2),
@@ -77,46 +61,42 @@ alu alu_main(
 	.Out(alu_out), 
 	.Ofl(Ofl),
 	.Cout(Cout),
+      .N(N),
 	.Z(Zero)
 );
-alu_cond_set conds(
-      //output
-      .EQZ(EQZ),
-      .GEZ(GEZ),
-      .LTZ(LTZ),
-      .LEZ(LEZ),
-      .NEZ(NEZ),
-      //input
-      .Ofl(Ofl),
-      .Z(Zero),
-      .msb(alu_out[15]),
-      .sign(sign)
+
+//Setting Conditional Flags
+wire  EQ, NE, HS, LO, MI, PL, VS, VC, HI, LS, GE, LT, GT, LE, AL,
+      cond_check;
+cond_set conds(
+      EQ, NE, HS, LO, MI, PL, VS, VC, HI, LS, GE, LT, GT, LE, AL,
+      Ofl, Cout, N, Zero
 );
+
 //Conditional Set
-mux4_1 cond_test(.InA(EQZ), .InB(LTZ), .InC(LEZ), .InD(Cout), .S(instr[12:11]), .Out(cond_set));
-assign cond_out = {{15{1'b0}}, {cond_set}};
+mux4_1 cond_test(.InA(EQ), .InB(LT), .InC(LE), .InD(HS), .S(instr[12:11]), .Out(cond_check));
+assign cond_out = {{15{1'b0}}, {cond_check}};
 
 
-//Calculate branch?
+//Address Calculation
+wire foo, jump_imm, branch_imm, branch_test, branch_taken, br_jmp;
+wire [15:0] branch_target;
+wire [15:0] pc_a_src;
+wire [15:0] pc_b_src;
+
+and2 inst3(.in1(jump), .in2(instr[11]), .out(jump_imm));
+or2  inst4(.in1(jump_imm), .in2(branch), .out(branch_imm));
+mux2_1_16bit pc_a_mux(.InA(pc_plus_two), .InB(data1), .S(jump_imm), .Out(pc_a_src));
+mux2_1_16bit pc_b_mux(.InA(imm_11_ext), .InB(imm_8_ext), .S(branch_imm), .Out(pc_b_src));
+fulladder16  pc_adder(.A(pc_a_src), .B(pc_b_src), .SUM(branch_target), .CO(foo));
 
 
-and2 inst3(.in1(jump), .in2(instr[11]), .out(jump_ctr));
-or2  inst4(.in1(jump_ctr), .in2(branch), .out(branch_ctr));
+mux4_1 mux7(.InA(EQ), .InB(NE), .InC(LT), .InD(GE), .S(instr[12:11]), .Out(branch_test));
+and2             inst12   (.in1(branch), .in2(branch_test), .out(branch_taken));
+or2              brorjmp   (.in1(branch_taken), .in2(jump), .out(br_jmp));
 
-mux2_1_16bit pc_a_mux(.InA(pc_plus_two), .InB(data1), .S(jump_ctr), .Out(pc_a_src));
-mux2_1_16bit pc_b_mux(.InA(imm_11_ext), .InB(imm_8_ext), .S(branch_ctr), .Out(pc_b_src));
-fulladder16  pc_adder(.A(pc_a_src), .B(pc_b_src), .SUM(pc_val), .CO(pcOut));
+mux2_1_16bit     mux9    (.InA(pc_plus_two), .InB(branch_target) , .S(br_jmp), .Out(next));
 
-
-mux4_1 mux7(.InA(EQZ), .InB(NEZ), .InC(LTZ), .InD(GEZ), 
-            .S(instr[12:11]), 
-            .Out(branch_taken)
-            );
-
-
-and2             inst12   (.in1(branch), .in2(branch_taken), .out(should_branch));
-or2              brorjmp   (.in1(should_branch), .in2(jump), .out(br_jmp));
-mux2_1_16bit     mux9    (.InA(pc_plus_two), .InB(pc_val) , .S(br_jmp), .Out(branch_target));
-mux2_1_16bit     mux10   (.InA(branch_target), .InB(pc_plus_two) , .S(halt), .Out(next));
+//mux2_1_16bit     mux10   (.InA(branch_target), .InB(pc_plus_two) , .S(halt), .Out(next));
 
 endmodule

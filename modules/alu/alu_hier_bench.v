@@ -12,6 +12,7 @@ module alu_hier_bench;
    wire [15:0] Out;
    wire 	 Ofl;
    wire 	 Cout;
+   wire		 N;
    wire 	 Z;
 
    reg           fail;
@@ -22,7 +23,7 @@ module alu_hier_bench;
    reg 	 ExZ;
    integer idx;
    
-   alu_hier DUT (.A(A_pre_inv), .B(B_pre_inv), .Cin(Cin), .Op(Op), .invA(invA), .invB(invB), .sign(sign), .Out(Out), .Ofl(Ofl), .Cout(Cout), .Z(Z));
+   alu_hier DUT (.A(A_pre_inv), .B(B_pre_inv), .Cin(Cin), .Op(Op), .invA(invA), .invB(invB), .sign(sign), .Out(Out), .Ofl(Ofl), .Cout(Cout), .N(N), .Z(Z));
    
    initial
      begin
@@ -83,10 +84,10 @@ module alu_hier_bench;
 		 cerror = 1'b1;
 	    end
 	  3'b010 :
-	    // Shift Right Arithmetic
+	    // Shift Right Arithmetic ExOut[idx] = A[15]
 	    begin
 	       for(idx = 31; idx > 15 ; idx = idx - 1)
-		 ExOut[idx] = A[15];
+		   ExOut[idx] = A[idx - 16]; // Rotate Right
 	       ExOut[15:0] = A[15:0];
 	       ExOut[15:0] = ExOut >> B[3:0];
 	       if (ExOut[15:0] !== Out)
