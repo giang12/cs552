@@ -7,16 +7,14 @@ module shifter_level_3 (In, S, Op, Out);
    
 
 
-   wire [7:0] x1_out;
-   wire [7:0] x2_out;
+   wire [7:0] x_out;
 
 
-  shifter_lsb_msb x[7:0](Op[0], In[15:8], x1_out);
-  shifter_lsb_msb x[7:0](Op[0], In[0:7],  x2_out);
+  shifter_lsb_msb x[7:0](Op[0], In[15:8], x_out);
 
-
-  mux4_1 m[15:0](In, {In[7:0], x1_out[7:0]}, In, {x2_out[7], x2_out[6], x2_out[5], x2_out[4], x2_out[3], x2_out[2], x2_out[1], x2_out[0], In[15:8]}, {Op[1], S}, Out);
+  mux4_1 m[15:0](In, {In[7:0], x_out[7:0]}, In, {x_out[7], x_out[7], x_out[7], x_out[7], x_out[7], x_out[7], x_out[7], x_out[7], In[15:8]}, {Op[1], S}, Out);
    
+
   /*
    wire x0_out,
         x1_out,

@@ -5,15 +5,11 @@ module shifter_level_1 (In, S, Op, Out);
    input [1:0]  Op;
    output [15:0] Out;
 
-   wire [1:0] x1_out;
-   wire [1:0] x2_out;
-
+   wire [1:0] x_out;
    
-   shifter_lsb_msb x[1:0](Op[0], In[15:14], x1_out);
-   shifter_lsb_msb x[1:0](Op[0], In[1:0],   x2_out);
+   shifter_lsb_msb x[1:0](Op[0], In[15:14], x_out);
 
-
-   mux4_1 m[15:0](In, {In[13:0], x1_out}, In, {x2_out[1], x2_out[0], In[15:2]}, {Op[1], S}, Out);
+   mux4_1 m[15:0](In, {In[13:0], x_out}, In, {x_out[1], x_out[1], In[15:2]}, {Op[1], S}, Out);
 
    /*
    shifter_lsb_msb x0(Op[0], In[15], x0_out);
