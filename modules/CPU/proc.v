@@ -17,41 +17,39 @@ module proc (/*AUTOARG*/
 
    // OR all the err ouputs for every sub-module and assign it as this
    // err output
-   
+   assign err = 1'b0;
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
-   assign err = 1'b0;
-   /* your code here */
-   wire [15:0] Instr, PC, PC_Plus_Two;
-
-   wire [15:0] data1, data2;
-   wire Branch, Jump, Exception, WBen;
-   wire [2:0] alu_op; wire [1:0] alu_b_sel;
-   wire Cin, invA, invB, sign, MemEn, MemWr;
-   wire [2:0] RegDataSrc;
-   wire [15:0] imm_5_ext, imm_8_ext, imm_11_ext;
-
-   wire [15:0] PC_Next; //next address from exceute, either PC+2 or JUMP/branch
-   wire [15:0] alu_out, slbi_out, btr_out, cond_out;
-
-   wire [15:0] mem_data_out;
-
+   //Feedback wires
+   wire Rti, Exception, Halt;
    wire [15:0] WriteBack_Data;
+   wire [15:0] Next_Instr_Addr; //next instr address to execute, either PC+2 or JUMP/branch
 
+
+   /**
+    * Instruction Fetch (IF)
+    */
+   wire [15:0] Instr, PC, PC_Plus_Two;
    fetch fetch0(   
       //output
       .instr(Instr), 
       .pcCurrent(PC), 
       .pcPlusTwo(PC_Plus_Two), 
       //input
-      .pcNext(PC_Next), 
-      .halt(Exception), 
+      .address(Next_Instr_Addr), 
+      .halt(Halt),
       .clk(clk), 
       .rst(rst)
    );
-   //decode
    
+   /**
+    * Instruction Decode/Register Fetch (ID)
+    */
+   wire [15:0] data1, data2, imm_5_ext, imm_8_ext, imm_11_ext;
+   wire Branch, Jump, Cin, invA, invB, sign, MemEn, MemWr;
+   wire [1:0] alu_b_sel;
+   wire [2:0] alu_op, RegDataSrc;
    decode decode0( 
       //output
       .data1(data1), //from register file
@@ -68,25 +66,29 @@ module proc (/*AUTOARG*/
       .sign(sign),
 
       .RegDataSrcSel(RegDataSrc), //for write stage
-      .RegWriteEn(WBen), //foo
       
       .MemEn(MemEn), //should en data memory?
       .MemWr(MemWr), //should write result to data memory
 
       .Branch(Branch), // branch flag
       .Jump(Jump), //jump flag
+      .Halt(Halt),
       .Exception(Exception), // there is error, or halting
-
+      .Rti(Rti),
       //input
       .Instr(Instr),
       .wb_data(WriteBack_Data), //wb data
       .clk(clk),
       .rst(rst)
    );
-   //exec
+
+   /**
+    * Execute/Address Calculation (EX)
+    */
+   wire [15:0] alu_out, slbi_out, btr_out, cond_out;
    execute execute0(
       // Outputs
-      .next(PC_Next), 
+      .next(Next_Instr_Addr), 
       .alu_out(alu_out), 
       .slbi_out(slbi_out),
       .btr_out(btr_out),
@@ -101,21 +103,26 @@ module proc (/*AUTOARG*/
       .imm_8_ext(imm_8_ext), 
       .imm_11_ext(imm_11_ext), 
 
-      .alu_a_sel(1'b0), //NOT USED
+      .alu_a_sel(2'b0), //reserved
       .alu_b_sel(alu_b_sel), 
       .alu_op(alu_op), 
       .Cin(Cin), 
-      .invA(invA), 
+      .invA(invA),
       .invB(invB), 
       .sign(sign), 
 
-      .halt(Exception),
+      .exception(Exception), // there is error
+      .rti(Rti),
       .jump(Jump), 
-      .branch(Branch)
+      .branch(Branch),
+      .clk(clk),
+      .rst(rst)
    );
 
-   //MEM
-   
+   /** 
+    * Memory Access (MEM)
+    */
+   wire [15:0] mem_data_out;
    memory memory0(  
       //output
       .readData(mem_data_out), 
@@ -124,12 +131,14 @@ module proc (/*AUTOARG*/
       .writeData(data2), 
       .en(MemEn), 
       .write(MemWr), 
-      .halt(Exception), //createdump
+      .halt(Halt), //createdump
       .clk(clk), 
       .rst(rst)
    );
 
-   //wrback
+   /**
+    * Write Back (WB)
+    */
    writeback WB(
       // Outputs
       .data(WriteBack_Data),

@@ -15,16 +15,19 @@ module execute(
       input [15:0] imm_8_ext, 
       input [15:0] imm_11_ext, 
 
-      input alu_a_sel, //NOT USED
+      input [1:0] alu_a_sel, //reserved
       input [1:0] alu_b_sel,
       input [2:0] alu_op, 
       input Cin, 
       input invA, 
       input invB, 
       input sign,
-      input halt, 
+      input exception,
+      input rti,
       input jump, 
-      input branch
+      input branch,
+      input clk,
+      input rst
    );
 
 //SLBI path
@@ -83,20 +86,37 @@ wire foo, jump_imm, branch_imm, branch_test, branch_taken, br_jmp;
 wire [15:0] branch_target;
 wire [15:0] pc_a_src;
 wire [15:0] pc_b_src;
+wire [15:0] EPC;
+
+register_16bit EPC_register(
+      // Outputs
+      .readdata(EPC),
+      // Inputs
+      .clk(clk), .rst(rst), .writedata(pc_plus_two), .write(exception)
+);
 
 and2 inst3(.in1(jump), .in2(instr[11]), .out(jump_imm));
 or2  inst4(.in1(jump_imm), .in2(branch), .out(branch_imm));
+mux4_1 mux7(.InA(EQ), .InB(NE), .InC(LT), .InD(GE), .S(instr[12:11]), .Out(branch_test));
+and2             inst12(.in1(branch), .in2(branch_test), .out(branch_taken));
+or2              brorjmp(.in1(branch_taken), .in2(jump), .out(br_jmp));
+
 mux2_1_16bit pc_a_mux(.InA(pc_plus_two), .InB(data1), .S(jump_imm), .Out(pc_a_src));
 mux2_1_16bit pc_b_mux(.InA(imm_11_ext), .InB(imm_8_ext), .S(branch_imm), .Out(pc_b_src));
 fulladder16  pc_adder(.A(pc_a_src), .B(pc_b_src), .SUM(branch_target), .CO(foo));
 
+mux8_1_16bit branch_src(
+      .In0(pc_plus_two),
+      .In1(branch_target), 
+      .In2(EPC), 
+      .In3(EPC),
+      .In4(16'h2), //exception handler address
+      .In5(16'h2), 
+      .In6(16'h2), 
+      .In7(16'h2), 
+      .S({exception, rti, br_jmp}), 
+      .Out(next)
+);
 
-mux4_1 mux7(.InA(EQ), .InB(NE), .InC(LT), .InD(GE), .S(instr[12:11]), .Out(branch_test));
-and2             inst12   (.in1(branch), .in2(branch_test), .out(branch_taken));
-or2              brorjmp   (.in1(branch_taken), .in2(jump), .out(br_jmp));
-
-mux2_1_16bit     mux9    (.InA(pc_plus_two), .InB(branch_target) , .S(br_jmp), .Out(next));
-
-//mux2_1_16bit     mux10   (.InA(branch_target), .InB(pc_plus_two) , .S(halt), .Out(next));
 
 endmodule
