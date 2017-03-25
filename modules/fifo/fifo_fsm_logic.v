@@ -43,15 +43,17 @@ module fifo_fsm_logic(
             next_state <= empty;
          end
          3'b0_00: begin //empty
-            fifo_empty <= add_fifo ? false : true;
+            fifo_empty <= false;
             next_state <= add_fifo ? going_full_empty : empty;
          end
          3'b0_01: begin //neither
+            fifo_empty <= (read_ptr == write_ptr) & pop_fifo;
+            fifo_full <= (read_ptr == write_ptr) & add_fifo;
             next_state <= (read_ptr != write_ptr) ? going_full_empty : 
             				(add_fifo) ?  full : empty;
          end
          3'b0_11: begin //full
-			   fifo_full <=  pop_fifo ? false : true;
+			   fifo_full <=  true;
             next_state <= pop_fifo ? going_full_empty : full;
          end
          default: begin
