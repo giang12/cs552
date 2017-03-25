@@ -36,6 +36,11 @@ module fifo(/*AUTOARG*/
    dff empty_flag(.q(curr_empty_flag), .d(fifo_empty), .clk(clk), .rst(rst));
    dff full_flag(.q(curr_full_flag), .d(fifo_full), .clk(clk), .rst(rst)); 
    
+   wire add, pop;
+
+   dff addff(.q(add), .d(data_in_valid), .clk(clk), .rst(rst));
+   dff popff(.q(pop), .d(pop_fifo), .clk(clk), .rst(rst)); 
+
    //fifo_fsm_stage
    wire[1:0] curr_state;
    wire [1:0] next_state;
@@ -48,10 +53,10 @@ module fifo(/*AUTOARG*/
       .rst(rst),
       .curr_empty(curr_empty_flag),
       .curr_full(curr_full_flag),
-      .add_fifo(data_in_valid),
-      .pop_fifo(pop_fifo),
+      .add_fifo(add),
+      .pop_fifo(pop),
       .state(curr_state),
-      
+
       //output
       .next_state(next_state),
 
