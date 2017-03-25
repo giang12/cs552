@@ -27,9 +27,13 @@ module fifo(/*AUTOARG*/
 
    wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst, read_ctr_in, write_ctr_in;
 
+   wire empty_flag_in, full_flag_in;
    //counters
    dff read_ctr_ff(.q(read_ctr_en), .d(read_ctr_in), .clk(clk), .rst(rst));
    dff write_ctr_ff(.q(write_ctr_en), .d(write_ctr_in), .clk(clk), .rst(rst));
+
+   dff empty_flag(.q(fifo_empty), .d(empty_flag_in), .clk(clk), .rst(rst));
+   dff full_flag(.q(fifo_empty), .d(full_flag_in), .clk(clk), .rst(rst));
 
    assign read_ctr_in = ~fifo_empty & pop_fifo;
    assign write_ctr_in = ~fifo_full & data_in_valid;
@@ -52,8 +56,8 @@ module fifo(/*AUTOARG*/
       .state(curr_state),
       //output
       .next_state(next_state),
-      .fifo_empty(fifo_empty),
-      .fifo_full(fifo_full),
+      .fifo_empty(empty_flag_in),
+      .fifo_full(full_flag_in),
       .read_ctr_rst(read_ctr_rst),
       .write_ctr_rst(write_ctr_rst),
       .err()
