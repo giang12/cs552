@@ -37,7 +37,7 @@ module fifo(/*AUTOARG*/
    dff full_flag(.q(curr_full_flag), .d(fifo_full), .clk(clk), .rst(rst)); 
    
    wire add, pop;
-   wire [63:0] data;
+   wire [63:0] data, next_data;
    assign next_data = data_in_valid ? data_in : data;
    dff dataff[63:0](.q(data), .d(next_data), .clk(clk), .rst(rst));
 
