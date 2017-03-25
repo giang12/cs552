@@ -67,8 +67,8 @@ module fifo_fsm_logic(
             fifo_empty <= (read_ptr != write_ptr) & read_ctr_en & ~write_ctr_en;
             fifo_full <= (read_ptr == write_ptr) & write_ctr_en;
 
-            next_state <= (read_ptr != write_ptr) ? going_full :
-                                write_ctr_en ? full: empty;
+            next_state <= (fifo_full) ? full :
+                                fifo_empty ? empty: going_full;
          end
          3'b0_11: begin //full
 			   fifo_full <=  ~pop_fifo;
