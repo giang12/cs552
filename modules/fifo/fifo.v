@@ -48,7 +48,10 @@ module fifo(/*AUTOARG*/
       .write_ctr_rst(write_ctr_rst),
       .err()
    );
-   
+
+   always @(posedge clk) begin
+      $display("\ncurr_state: %d next_state: %d, data_in_valid: %b, pop_fifo: %b", curr_state, next_state, data_in_valid, pop_fifo);
+   end
    //counters
    assign read_ctr_en = ~fifo_empty & pop_fifo;
    assign write_ctr_en = ~fifo_full & data_in_valid;
