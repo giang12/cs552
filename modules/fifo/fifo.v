@@ -79,7 +79,7 @@ module fifo(/*AUTOARG*/
    wire [3:0] decode_out;
    wire [63:0] reg_out;
    wire bypass;
-   assign bypass = (write_ptr == read_ptr) & write_ctr_en;
+   assign bypass = (write_ptr == read_ptr) & (write_ctr_en | ~read_ctr_en);
    decoder2_4 decoder(.in(write_ptr), .out(decode_out));
     
    and2 and_0(.out(en0), .in1(write_ctr_en), .in2(decode_out[0]));
