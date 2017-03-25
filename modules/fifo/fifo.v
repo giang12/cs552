@@ -38,7 +38,8 @@ module fifo(/*AUTOARG*/
    
    wire add, pop;
    wire [63:0] data;
-   dff dataff[63:0](.q(data), .d(data_in), .clk(clk), .rst(rst));
+   assign next_data = data_in_valid ? data_in : data;
+   dff dataff[63:0](.q(data), .d(next_data), .clk(clk), .rst(rst));
 
 
    dff addff(.q(add), .d(data_in_valid), .clk(clk), .rst(rst));
