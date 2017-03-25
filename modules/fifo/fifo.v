@@ -73,7 +73,9 @@ module fifo(/*AUTOARG*/
 
    //fifo regs
    wire [3:0] decode_out;
-
+   wire [63:0] reg_out;
+   wire bypass;
+   assign bypass = (write_ptr == read_ptr) & write_ctr_en;
    decoder2_4 decoder(.in(write_ptr), .out(decode_out));
     
    and2 and_0(.out(en0), .in1(write_ctr_en), .in2(decode_out[0]));
@@ -86,9 +88,9 @@ module fifo(/*AUTOARG*/
    register_64bit inst2(.readdata(reg_out2), .clk(clk), .rst(rst), .writedata(data_in) , .write(en2));
    register_64bit inst3(.readdata(reg_out3), .clk(clk), .rst(rst), .writedata(data_in) , .write(en3));
 
-   mux4_1_64bit mux_out(.InA(reg_out0), .InB(reg_out1), .InC(reg_out2), .InD(reg_out3), .S(read_ptr), .Out(data_out));
+   mux4_1_64bit mux_out(.InA(reg_out0), .InB(reg_out1), .InC(reg_out2), .InD(reg_out3), .S(read_ptr), .Out(reg_out));
 
-
+   mux2_1_64bit mux_mux(.InA(reg_out), .InB(data_in), .S(bypass), .Out(data_out));
 
    always @(posedge clk) begin
       $display("\n curr_state: %b next_state: %b, read_ctr_en: %b, write_ctr_en: %b", curr_state, next_state, read_ctr_en, write_ctr_en);
