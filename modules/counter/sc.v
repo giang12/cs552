@@ -23,30 +23,25 @@ module sc( clk, rst, ctr_rst, out, err);
 
    //state logic
 	always @(ctr_rst or state) begin
+      err = 1'b0;
 		case(state)
-			3'b000: begin
+			   3'b000: begin
       			next_state = ctr_rst ? 3'b000 : 3'b001;
-      			err = 1'b0;
       		end
       		3'b001: begin
       			next_state = ctr_rst ? 3'b000 : 3'b010;
-      			err = 1'b0;
       		end
       		3'b010: begin
       			next_state = ctr_rst ? 3'b000 : 3'b011;
-      			err = 1'b0;
       		end
       		3'b011: begin
       			next_state = ctr_rst ? 3'b000 : 3'b100;
-      			err = 1'b0;
       		end
       		3'b100: begin
       			next_state = ctr_rst ? 3'b000 : 3'b101;
-      			err = 1'b0;
       		end
       		3'b101: begin
       			next_state = ctr_rst ? 3'b000 : 3'b101;
-      			err = 1'b0;
       		end
       		default: begin
       			next_state = 3'bxxx;
