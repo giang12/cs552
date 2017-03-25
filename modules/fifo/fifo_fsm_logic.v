@@ -9,10 +9,14 @@ module fifo_fsm_logic(
 	state,
 	next_state,
 	fifo_empty,
-	fifo_full,
-	read_ctr_rst,
-	write_ctr_rst,
-	err
+   fifo_full,
+
+   read_ctr_en,
+   write_ctr_en,
+      
+   read_ctr_rst,
+   write_ctr_rst,
+   err
 ); 
 
    input [1:0] state, read_ptr, write_ptr;
@@ -35,7 +39,7 @@ module fifo_fsm_logic(
    localparam full = 2'b11;
 
    	//FSM stage logic
-   	always @(*) begin
+   	always @(rst, state) begin
       next_state <= state;
       fifo_empty <= false;
       fifo_full <= false;
@@ -56,7 +60,7 @@ module fifo_fsm_logic(
          end
          3'b0_01: begin //neither
             read_ctr_en = ~curr_empty & pop_fifo;
-            write_ctr_en = ~curr_full & data_in_valid;
+            write_ctr_en = ~curr_full & add_fifo;
 
             fifo_empty <= (read_ptr != write_ptr) ? false : ~read_ctr_en;
             fifo_full <= (read_ptr != write_ptr) ? false : ~write_ctr_en;      
