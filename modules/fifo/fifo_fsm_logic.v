@@ -1,17 +1,24 @@
 module fifo_fsm_logic(
-	input [1:0] read_ptr,
-	input [1:0] write_ptr,
-	input rst,
-	input add_fifo,
-	input pop_fifo,
-	input [1:0] state,
-	output [1:0] next_state,
-	output fifo_empty,
-	output fifo_full,
-	output read_ctr_rst,
-	output write_ctr_rst,
-	output err
-);
+	read_ptr,
+	write_ptr,
+	rst,
+	add_fifo,
+	pop_fifo,
+	state,
+	next_state,
+	fifo_empty,
+	fifo_full,
+	read_ctr_rst,
+	write_ctr_rst,
+	err
+); 
+
+   input [1:0] state, read_ptr, write_ptr;
+   input rst, add_fifo, pop_fifo;
+
+   output [1:0] next_state;
+   output fifo_empty, fifo_full, read_ctr_rst, write_ctr_rst, err;
+
 	reg [1:0] next_state;
 	reg fifo_empty, fifo_full, read_ctr_rst, write_ctr_rst, err;
 

@@ -1,11 +1,16 @@
 module counter_2bit(
-	input clk,
-	input rst,
-	input en,
-	input ctr_rst,
-	output [1:0] out,
-	output err
+	clk,
+	rst,
+	en,
+	ctr_rst,
+	out,
+	err
 );
+  
+  input clk, rst, en, ctr_rst;
+  output [1:0] out;
+  output err;
+
 
   wire [1:0] count;
   reg [1:0] next_count;

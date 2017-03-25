@@ -27,7 +27,7 @@ module fifo(/*AUTOARG*/
 
    wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst;
 
-   //FSM stage
+   //fifo_fsm_stage
    wire[1:0] curr_state;
    wire [1:0] next_state;
    dff fsm_stage[1:0](.q(curr_state),.d(next_state),.clk(clk),.rst(rst));
@@ -48,7 +48,7 @@ module fifo(/*AUTOARG*/
       .write_ctr_rst(write_ctr_rst),
       .err()
    );
-
+   
    //counters
    assign read_ctr_en = ~fifo_empty & pop_fifo;
    assign write_ctr_en = ~fifo_full & data_in_valid;
