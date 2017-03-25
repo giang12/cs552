@@ -40,7 +40,7 @@ module fifo_fsm_logic(
    localparam going_empty = 2'b10;
 
    	//FSM stage logic
-   	always @(rst, add_fifo, pop_fifo, read_ptr, write_ptr, state)begin
+   	always @(rst, add_fifo, pop_fifo, state)begin
       next_state <= state;
       fifo_empty <= false;
       fifo_full <= false;
@@ -69,7 +69,7 @@ module fifo_fsm_logic(
             fifo_full <= (read_ctr_en == write_ctr_en) ? curr_full : write_ctr_en;
 
             next_state <= (read_ctr_en == write_ctr_en) ? going_full :
-                                (fifo_full) ? full: empty;
+                                (fifo_full == true) ? full: empty;
          end
          3'b0_11: begin //full
 			   fifo_full <=  ~pop_fifo;
