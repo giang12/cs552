@@ -1,31 +1,30 @@
 /* $Author: karu $ */
 /* $LastChangedDate: 2009-03-04 23:09:45 -0600 (Wed, 04 Mar 2009) $ */
 /* $Rev: 45 $ */
-// module fifo(/*AUTOARG*/
-//    // Outputs
-//    data_out, fifo_empty, fifo_full, err,
-//    // Inputs
-//    data_in, data_in_valid, pop_fifo, clk, rst
-//    );
+module fifo(/*AUTOARG*/
+   // Outputs
+   data_out, fifo_empty, fifo_full, err,
+   // Inputs
+   data_in, data_in_valid, pop_fifo, clk, rst
+   );
 
-module fifo # (parameter abits = 2, dbits = 64)(
-    input clk,
-    input rst,
-    input data_in_valid,
-    input pop_fifo,
-   input [dbits-1:0] data_in,
-   output fifo_empty,
-   output fifo_full,
-   output [dbits-1:0] data_out,
-   output err
-);
- 
-reg [dbits-1:0] out;
+   input [63:0] data_in;
+   input        data_in_valid; //writeSignal
+   input        pop_fifo; //readSignal
+
+   input        clk;
+   input        rst;
+   output [63:0] data_out;
+   output        fifo_empty;
+   output        fifo_full;
+   output        err;
+
+reg [63:0] out;
  
 
-reg [dbits-1:0] regarray[2**abits-1:0]; //number of words in fifo = 2^(number of address bits)
-reg [abits-1:0] wr_reg, wr_next, wr_succ; //points to the register that needs to be written to
-reg [abits-1:0] rd_reg, rd_next, rd_succ; //points to the register that needs to be read from
+reg [63:0] regarray[3:0]; //number of words in fifo = 2^(number of address bits)
+reg [1:0] wr_reg, wr_next, wr_succ; //points to the register that needs to be written to
+reg [1:0] rd_reg, rd_next, rd_succ; //points to the register that needs to be read from
 reg full_reg, empty_reg, full_next, empty_next;
  
 assign wr_en = data_in_valid & ~fifo_full; //only write if write signal is high and fifo is not full
