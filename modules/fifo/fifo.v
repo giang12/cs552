@@ -40,7 +40,6 @@ always @ (posedge clk)
 //always block for read operation
 always @ (posedge clk)
  begin
-  if(pop_fifo)
    out <= regarray[rd_reg];
  end
   
@@ -94,7 +93,7 @@ always @(*)
        begin
         wr_next = wr_succ;
         empty_next = 1'b0;
-        if(wr_succ == (2**abits-1)) //all registers have been written to
+        if(wr_succ == (3)) //all registers have been written to
          full_next = 1'b1;   //its full now
        end
      end
