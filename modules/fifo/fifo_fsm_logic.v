@@ -2,6 +2,8 @@ module fifo_fsm_logic(
 	read_ptr,
 	write_ptr,
 	rst,
+   curr_empty,
+   curr_full,
 	add_fifo,
 	pop_fifo,
 	state,
@@ -14,13 +16,17 @@ module fifo_fsm_logic(
 ); 
 
    input [1:0] state, read_ptr, write_ptr;
-   input rst, add_fifo, pop_fifo;
+   input rst, add_fifo, pop_fifo, curr_empty, curr_full;
 
    output [1:0] next_state;
    output fifo_empty, fifo_full, read_ctr_rst, write_ctr_rst, err;
 
+   output read_ctr_en, write_ctr_en; 
+
 	reg [1:0] next_state;
 	reg fifo_empty, fifo_full, read_ctr_rst, write_ctr_rst, err;
+
+   reg read_ctr_en, write_ctr_en; 
 
    localparam true = 1'b1;
    localparam false = 1'b0;
@@ -36,24 +42,30 @@ module fifo_fsm_logic(
       read_ctr_rst <= false;
       write_ctr_rst <= false;
       err <= false;
-
+      read_ctr_en = false;
+      write_ctr_en = false;
       casex({rst, state})
          3'b1_xx: begin //rst
             fifo_empty <= true;
             next_state <= empty;
          end
          3'b0_00: begin //empty
-            fifo_empty <= false;
+            fifo_empty <= true;
+            write_ctr_en <= add_fifo;
             next_state <= add_fifo ? going_full_empty : empty;
          end
          3'b0_01: begin //neither
-            fifo_empty <= (read_ptr == write_ptr) & pop_fifo;
-            fifo_full <= (read_ptr == write_ptr) & add_fifo;
-            next_state <= (read_ptr != write_ptr) ? going_full_empty : 
-            				(add_fifo) ?  full : empty;
+            read_ctr_en = ~curr_empty & pop_fifo;
+            write_ctr_en = ~curr_full & data_in_valid;
+
+            fifo_empty <= (read_ptr != write_ptr) ? false : ~read_ctr_en;
+            fifo_full <= (read_ptr != write_ptr) ? false : ~write_ctr_en;      
+            next_state <= (fifo_empty) ? empty : 
+                        (fifo_full) ?  full : going_full_empty;
          end
          3'b0_11: begin //full
 			   fifo_full <=  true;
+            read_ctr_en <= pop_fifo;
             next_state <= pop_fifo ? going_full_empty : full;
          end
          default: begin

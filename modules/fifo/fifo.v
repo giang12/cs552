@@ -25,22 +25,17 @@ module fifo(/*AUTOARG*/
    // pointers 
    wire [1:0] read_ptr, write_ptr;
 
-   wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst, read_ctr_in, write_ctr_in;
-
-   wire empty_flag_in, full_flag_in;
    //counters
-   dff read_ctr_ff(.q(read_ctr_en), .d(read_ctr_in), .clk(clk), .rst(rst));
-   dff write_ctr_ff(.q(write_ctr_en), .d(write_ctr_in), .clk(clk), .rst(rst));
+   wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst;
 
-   dff empty_flag(.q(fifo_empty), .d(empty_flag_in), .clk(clk), .rst(rst));
-   dff full_flag(.q(fifo_empty), .d(full_flag_in), .clk(clk), .rst(rst));
-
-   assign read_ctr_in = ~fifo_empty & pop_fifo;
-   assign write_ctr_in = ~fifo_full & data_in_valid;
-   
    counter_2bit read_ctr(.clk(clk), .rst(rst), .en(read_ctr_en), .ctr_rst(read_ctr_rst), .out(read_ptr), .err());
    counter_2bit write_ctr(.clk(clk), .rst(rst), .en(write_ctr_en), .ctr_rst(write_ctr_rst), .out(write_ptr), .err());
+   
+   wire curr_empty_flag, curr_full_flag;
 
+   dff empty_flag(.q(curr_empty_flag), .d(fifo_empty), .clk(clk), .rst(rst));
+   dff full_flag(.q(curr_full_flag), .d(fifo_full), .clk(clk), .rst(rst)); 
+   
    //fifo_fsm_stage
    wire[1:0] curr_state;
    wire [1:0] next_state;
@@ -51,13 +46,20 @@ module fifo(/*AUTOARG*/
       .read_ptr(read_ptr),
       .write_ptr(write_ptr),
       .rst(rst),
-      .add_fifo(write_ctr_en),
-      .pop_fifo(read_ctr_en),
+      .curr_empty(curr_empty_flag),
+      .curr_full(curr_full_flag),
+      .add_fifo(data_in_valid),
+      .pop_fifo(pop_fifo),
       .state(curr_state),
       //output
       .next_state(next_state),
-      .fifo_empty(empty_flag_in),
-      .fifo_full(full_flag_in),
+
+      .fifo_empty(fifo_empty),
+      .fifo_full(fifo_full),
+
+      .read_ctr_en(read_ctr_en),
+      .write_ctr_en(write_ctr_en),
+      
       .read_ctr_rst(read_ctr_rst),
       .write_ctr_rst(write_ctr_rst),
       .err()
