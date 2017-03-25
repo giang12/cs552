@@ -29,7 +29,7 @@ module fifo_fsm_logic(
    localparam full = 2'b11;
 
    	//FSM stage logic
-   	always @(rst or state) begin
+   	always @(*) begin
       next_state <= state;
       fifo_empty <= false;
       fifo_full <= false;
