@@ -40,7 +40,7 @@ module fifo_fsm_logic(
    localparam going_empty = 2'b10;
 
    	//FSM stage logic
-   	always @(rst, add_fifo, pop_fifo, state)begin
+   	always @(rst, add_fifo, pop_fifo, read_ptr, write_ptr, state)begin
       next_state <= state;
       fifo_empty <= false;
       fifo_full <= false;
@@ -51,8 +51,9 @@ module fifo_fsm_logic(
       write_ctr_en = false;
       casex({rst, state})
          3'b1_xx: begin //rst
-            fifo_empty <= true;
-            next_state <= empty;
+            fifo_empty <= ~add_fifo;
+            write_ctr_en = add_fifo;
+            next_state <= add_fifo ? going_full : empty;
          end
          3'b0_00: begin //empty
             fifo_empty <= ~add_fifo;
@@ -63,10 +64,11 @@ module fifo_fsm_logic(
             read_ctr_en = ~curr_empty & pop_fifo;
             write_ctr_en = ~curr_full & add_fifo;
 
-            fifo_empty <= (read_ptr == write_ptr) & read_ctr_en & ~write_ctr_en;
+            fifo_empty <= (read_ptr != write_ptr) & read_ctr_en & ~write_ctr_en;
             fifo_full <= (read_ptr == write_ptr) & ~read_ctr_en & write_ctr_en;
-            next_state <= (fifo_full) ? full :
-                                fifo_empty ? going_empty: going_full;
+
+            next_state <= (read_ptr != write_ptr) ? going_full :
+                                write_ctr_en ? full: going_empty;
          end
          3'b0_11: begin //full
 			   fifo_full <=  ~pop_fifo;
@@ -77,10 +79,11 @@ module fifo_fsm_logic(
             read_ctr_en = ~curr_empty & pop_fifo;
             write_ctr_en = ~curr_full & add_fifo;
 
-            fifo_full <= (read_ptr == write_ptr) & ~read_ctr_en & write_ctr_en;
+            fifo_full <= (read_ptr != write_ptr) & ~read_ctr_en & write_ctr_en;
             fifo_empty <= (read_ptr == write_ptr) & read_ctr_en & ~write_ctr_en;
-            next_state <= (fifo_empty) ? empty :
-                                fifo_full ? going_full: going_empty;
+
+            next_state <= (read_ptr != write_ptr) ? going_empty :
+                                read_ctr_en ? empty: going_full;
          end
          default: begin
             err <= true;
