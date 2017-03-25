@@ -37,6 +37,7 @@ module fifo_fsm_logic(
    localparam empty = 2'b00;
    localparam going_full_empty = 2'b01;
    localparam full = 2'b11;
+   localparam going_empty = 2'b10;
 
    	//FSM stage logic
    	always @(rst, state) begin
@@ -54,23 +55,30 @@ module fifo_fsm_logic(
             next_state <= empty;
          end
          3'b0_00: begin //empty
-            fifo_empty <= true;
-            write_ctr_en <= add_fifo;
+            fifo_empty <= ~add_fifo;
+            write_ctr_en = add_fifo;
             next_state <= add_fifo ? going_full_empty : empty;
          end
-         3'b0_01: begin //neither
+         3'b0_01: begin //going full
             read_ctr_en = ~curr_empty & pop_fifo;
             write_ctr_en = ~curr_full & add_fifo;
 
-            fifo_empty <= (read_ptr != write_ptr) ? false : ~read_ctr_en;
-            fifo_full <= (read_ptr != write_ptr) ? false : ~write_ctr_en;      
-            next_state <= (fifo_empty) ? empty : 
-                        (fifo_full) ?  full : going_full_empty;
+            //fifo_empty <= curr_empty;
+            fifo_full <= (read_ptr == write_ptr);      
+            next_state <= (fifo_full) ? full : going_full_empty
          end
          3'b0_11: begin //full
-			   fifo_full <=  true;
+			   fifo_full <=  ~pop_fifo;
             read_ctr_en <= pop_fifo;
-            next_state <= pop_fifo ? going_full_empty : full;
+            next_state <= pop_fifo ? going_empty : full;
+         end
+         3'b0_10: begin //going empty
+            read_ctr_en = ~curr_empty & pop_fifo;
+            write_ctr_en = ~curr_full & add_fifo;
+
+            //fifo_full <= curr_full;
+            fifo_empty <= (read_ptr == write_ptr);      
+            next_state <= (fifo_empty) ? empty : going_empty;
          end
          default: begin
             err <= true;
