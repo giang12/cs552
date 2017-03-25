@@ -25,11 +25,14 @@ module fifo(/*AUTOARG*/
    // pointers 
    wire [1:0] read_ptr, write_ptr;
 
-   wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst;
+   wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst, read_ctr_in, write_ctr_in;
 
    //counters
-   assign read_ctr_en = ~fifo_empty & pop_fifo;
-   assign write_ctr_en = ~fifo_full & data_in_valid;
+   dff read_ctr_ff(.q(read_ctr_en), .d(read_ctr_in), .clk(clk), .rst(rst));
+   dff write_ctr_ff(.q(write_ctr_en), .d(write_ctr_in), .clk(clk), .rst(rst));
+
+   assign read_ctr_in = ~fifo_empty & pop_fifo;
+   assign write_ctr_in = ~fifo_full & data_in_valid;
    
    counter_2bit read_ctr(.clk(clk), .rst(rst), .en(read_ctr_en), .ctr_rst(read_ctr_rst), .out(read_ptr), .err());
    counter_2bit write_ctr(.clk(clk), .rst(rst), .en(write_ctr_en), .ctr_rst(write_ctr_rst), .out(write_ptr), .err());
@@ -44,8 +47,8 @@ module fifo(/*AUTOARG*/
       .read_ptr(read_ptr),
       .write_ptr(write_ptr),
       .rst(rst),
-      .add_fifo(data_in_valid),
-      .pop_fifo(pop_fifo),
+      .add_fifo(write_ctr_en),
+      .pop_fifo(read_ctr_en),
       .state(curr_state),
       //output
       .next_state(next_state),
