@@ -37,6 +37,9 @@ module fifo(/*AUTOARG*/
    dff full_flag(.q(curr_full_flag), .d(fifo_full), .clk(clk), .rst(rst)); 
    
    wire add, pop;
+   wire [63:0] data;
+   dff dataff[63:0](.q(data), .d(data_in), .clk(clk), .rst(rst));
+
 
    dff addff(.q(add), .d(data_in_valid), .clk(clk), .rst(rst));
    dff popff(.q(pop), .d(pop_fifo), .clk(clk), .rst(rst)); 
@@ -83,14 +86,14 @@ module fifo(/*AUTOARG*/
    and2 and_2(.out(en2), .in1(write_ctr_en), .in2(decode_out[2]));
    and2 and_3(.out(en3), .in1(write_ctr_en), .in2(decode_out[3]));
 
-   register_64bit inst0(.readdata(reg_out0), .clk(clk), .rst(rst), .writedata(data_in) , .write(en0));
-   register_64bit inst1(.readdata(reg_out1), .clk(clk), .rst(rst), .writedata(data_in) , .write(en1));
-   register_64bit inst2(.readdata(reg_out2), .clk(clk), .rst(rst), .writedata(data_in) , .write(en2));
-   register_64bit inst3(.readdata(reg_out3), .clk(clk), .rst(rst), .writedata(data_in) , .write(en3));
+   register_64bit inst0(.readdata(reg_out0), .clk(clk), .rst(rst), .writedata(data) , .write(en0));
+   register_64bit inst1(.readdata(reg_out1), .clk(clk), .rst(rst), .writedata(data) , .write(en1));
+   register_64bit inst2(.readdata(reg_out2), .clk(clk), .rst(rst), .writedata(data) , .write(en2));
+   register_64bit inst3(.readdata(reg_out3), .clk(clk), .rst(rst), .writedata(data) , .write(en3));
 
    mux4_1_64bit mux_out(.InA(reg_out0), .InB(reg_out1), .InC(reg_out2), .InD(reg_out3), .S(read_ptr), .Out(reg_out));
 
-   mux2_1_64bit mux_mux(.InA(reg_out), .InB(data_in), .S(bypass), .Out(data_out));
+   mux2_1_64bit mux_mux(.InA(reg_out), .InB(data), .S(bypass), .Out(data_out));
 
    always @(posedge clk) begin
       $display("\n curr_state: %b next_state: %b, read_ctr_en: %b, write_ctr_en: %b", curr_state, next_state, read_ctr_en, write_ctr_en);
