@@ -64,11 +64,11 @@ module fifo_fsm_logic(
             read_ctr_en = ~curr_empty & pop_fifo;
             write_ctr_en = ~curr_full & add_fifo;
 
-            fifo_empty <= (read_ctr_en == read_ctr_en) ? curr_empty : read_ctr_en;
+            fifo_empty <= (read_ctr_en == write_ctr_en) ? curr_empty : read_ctr_en;
 
-            fifo_full <= (read_ctr_en == read_ctr_en) ? curr_full : write_ctr_en;
+            fifo_full <= (read_ctr_en == write_ctr_en) ? curr_full : write_ctr_en;
 
-            next_state <= (read_ctr_en == read_ctr_en) ? going_full :
+            next_state <= (read_ctr_en == write_ctr_en) ? going_full :
                                 (fifo_full) ? full: empty;
          end
          3'b0_11: begin //full
