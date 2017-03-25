@@ -64,27 +64,28 @@ module fifo_fsm_logic(
             read_ctr_en = ~curr_empty & pop_fifo;
             write_ctr_en = ~curr_full & add_fifo;
 
-            fifo_empty <= (read_ptr != write_ptr) & read_ctr_en & ~write_ctr_en;
-            //fifo_full <= (read_ptr == write_ptr) ? (write_ctr_en & ~read_ctr_en) :
+            fifo_empty <= (read_ctr_en & read_ctr_en) ? curr_empty :
+                           (read_ptr == write_ptr) & read_ctr_en;
 
+            fifo_full <= (read_ctr_en & read_ctr_en) ? curr_full :
+                           (read_ptr == write_ptr) & write_ctr_en;
 
-            next_state <= (fifo_empty) ? empty :
-                                write_ctr_en ? full: going_empty;
+            next_state <= (read_ctr_en & read_ctr_en) ? going_full :
+                                (fifo_full) ? full: empty;
          end
          3'b0_11: begin //full
 			   fifo_full <=  ~pop_fifo;
             read_ctr_en <= pop_fifo;
-            next_state <= pop_fifo ? going_empty : full;
+            next_state <= pop_fifo ? going_full : full;
          end
          3'b0_10: begin //going empty
             read_ctr_en = ~curr_empty & pop_fifo;
             write_ctr_en = ~curr_full & add_fifo;
 
-            fifo_full <= (read_ptr != write_ptr) & ~read_ctr_en & write_ctr_en;
-            //fifo_empty <= (read_ptr == write_ptr) & read_ctr_en;
+            fifo_empty <= (read_ptr != write_ptr) & read_ctr_en & ~write_ctr_en;
 
-            next_state <= (fifo_full) ? full :
-                                read_ctr_en ? empty: going_full;
+            next_state <= (fifo_empty) ? empty :
+                                read_ctr_en ? full: going_full;
          end
          default: begin
             err <= true;
