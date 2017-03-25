@@ -22,7 +22,7 @@ module counter_2bit(
   dff states[1:0](.q(count), .d(next_count), .clk(clk), .rst(rst));
 
    //count logic
-	always @(ctr_rst, posedge clk) begin
+	always @(ctr_rst, count) begin
      	err = 1'b0;
      	casex({ctr_rst, en})
      		2'b1_x: begin //ctr_rst

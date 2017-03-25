@@ -40,7 +40,7 @@ module fifo_fsm_logic(
    localparam going_empty = 2'b10;
 
    	//FSM stage logic
-   	always @(rst, state) begin
+   	always @(rst, add_fifo, pop_fifo, state)begin
       next_state <= state;
       fifo_empty <= false;
       fifo_full <= false;

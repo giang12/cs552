@@ -51,6 +51,7 @@ module fifo(/*AUTOARG*/
       .add_fifo(data_in_valid),
       .pop_fifo(pop_fifo),
       .state(curr_state),
+      
       //output
       .next_state(next_state),
 
