@@ -28,9 +28,11 @@ module fifo(/*AUTOARG*/
    wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst;
 
    //counters
+   /*
+   
    assign read_ctr_en = ~fifo_empty & pop_fifo;
    assign write_ctr_en = ~fifo_full & data_in_valid;
-   
+   */
    counter_2bit read_ctr(.clk(clk), .rst(rst), .en(read_ctr_en), .ctr_rst(read_ctr_rst), .out(read_ptr), .err());
    counter_2bit write_ctr(.clk(clk), .rst(rst), .en(write_ctr_en), .ctr_rst(write_ctr_rst), .out(write_ptr), .err());
 
@@ -51,6 +53,8 @@ module fifo(/*AUTOARG*/
       .next_state(next_state),
       .fifo_empty(fifo_empty),
       .fifo_full(fifo_full),
+      .read_ctr_en(read_ctr_en),
+      .write_ctr_en(write_ctr_en),
       .read_ctr_rst(read_ctr_rst),
       .write_ctr_rst(write_ctr_rst),
       .err()
