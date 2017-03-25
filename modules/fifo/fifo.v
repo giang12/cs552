@@ -27,6 +27,13 @@ module fifo(/*AUTOARG*/
 
    wire read_ctr_en, write_ctr_en, read_ctr_rst, write_ctr_rst;
 
+   //counters
+   assign read_ctr_en = ~fifo_empty & pop_fifo;
+   assign write_ctr_en = ~fifo_full & data_in_valid;
+   
+   counter_2bit read_ctr(.clk(clk), .rst(rst), .en(read_ctr_en), .ctr_rst(read_ctr_rst), .out(read_ptr), .err());
+   counter_2bit write_ctr(.clk(clk), .rst(rst), .en(write_ctr_en), .ctr_rst(write_ctr_rst), .out(write_ptr), .err());
+
    //fifo_fsm_stage
    wire[1:0] curr_state;
    wire [1:0] next_state;
@@ -49,16 +56,6 @@ module fifo(/*AUTOARG*/
       .err()
    );
 
-   always @(posedge clk) begin
-      $display("\ncurr_state: %d next_state: %d, data_in_valid: %b, pop_fifo: %b", curr_state, next_state, data_in_valid, pop_fifo);
-   end
-   //counters
-   assign read_ctr_en = ~fifo_empty & pop_fifo;
-   assign write_ctr_en = ~fifo_full & data_in_valid;
-   
-   counter_2bit read_ctr(.clk(clk), .rst(rst), .en(read_ctr_en), .ctr_rst(read_ctr_rst), .out(read_ptr), .err());
-   counter_2bit write_ctr(.clk(clk), .rst(rst), .en(write_ctr_en), .ctr_rst(write_ctr_rst), .out(write_ptr), .err());
-
    //fifo regs
    wire [3:0] decode_out;
 
@@ -76,6 +73,13 @@ module fifo(/*AUTOARG*/
 
    mux4_1_64bit mux_out(.InA(reg_out0), .InB(reg_out1), .InC(reg_out2), .InD(reg_out3), .S(read_ptr), .Out(data_out));
 
+
+
+   always @(posedge clk) begin
+      $display("\n curr_state: %2d next_state: %2d, read_ctr_en: %b, write_ctr_en: %b", curr_state, next_state, read_ctr_en, write_ctr_en);
+      $display("\n read_ctr: %2d write_ctr: %2d", read_ctr, write_ctr);
+
+   end
 
 endmodule
 // DUMMY LINE FOR REV CONTROL :1:
