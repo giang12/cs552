@@ -43,7 +43,7 @@ module fifo_fsm_logic(
             next_state <= empty;
          end
          3'b0_00: begin //empty
-            fifo_empty <= true;
+            fifo_empty <= ~add_fifo;
             next_state <= add_fifo ? going_full_empty : empty;
          end
          3'b0_01: begin //neither
@@ -51,7 +51,7 @@ module fifo_fsm_logic(
             				(add_fifo) ?  full : empty;
          end
          3'b0_11: begin //full
-			fifo_full <= true;
+			   fifo_full <= ~pop_fifo;
             next_state <= pop_fifo ? going_full_empty : full;
          end
          default: begin
