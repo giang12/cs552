@@ -76,8 +76,8 @@ module fifo(/*AUTOARG*/
 
 
    always @(posedge clk) begin
-      $display("\n curr_state: %2d next_state: %2d, read_ctr_en: %b, write_ctr_en: %b", curr_state, next_state, read_ctr_en, write_ctr_en);
-      $display("\n read_ctr: %2d write_ctr: %2d", read_ctr, write_ctr);
+      $display("\n curr_state: %b next_state: %b, read_ctr_en: %b, write_ctr_en: %b", curr_state, next_state, read_ctr_en, write_ctr_en);
+      $display("\n read_ctr: %d write_ctr: %d", read_ptr, write_ptr);
 
    end
 
