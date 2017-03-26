@@ -1,13 +1,13 @@
 module up_counter_3bit(
 	clk,
 	rst,
-	en,
+	ctr_en,
 	ctr_rst,
 	out,
 	err
 );
   
-  input clk, rst, en, ctr_rst;
+  input clk, rst, ctr_en, ctr_rst;
   output [2:0] out;
   output err;
 
@@ -22,20 +22,18 @@ module up_counter_3bit(
   dff states[2:0](.q(count), .d(next_count), .clk(clk), .rst(rst));
 
    //count logic
-  always @(ctr_rst or count or en) begin
+  always @(ctr_rst or ctr_en or count) begin
      	err <= 1'b0;
-      $display("\n IsCounter En: %b", en);
-
-     	casex({ctr_rst, en})
+     	casex({ctr_rst, ctr_en})
      		2'b1_x: begin //ctr_rst
      			next_count <= 3'b000;
      		end
-     		2'b0_x: begin //enable
-     			next_count <= count + 1;//{{count[2] ^ (count[1] & count[0])}, {count[1] ^ count[0]}, ~count[0]};
+     		2'b0_1: begin //enable
+     			next_count <= {{count[2] ^ (count[1] & count[0])}, {count[1] ^ count[0]}, ~count[0]};
      		end
-     		/*2'b0_0: begin //disable
+     		2'b0_0: begin //disable
      			next_count <= count;
-     		end*/
+     		end
      		default: begin
      			next_count <= 3'bxxx;
      			err <= 1'b1;

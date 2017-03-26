@@ -30,8 +30,8 @@ module fifo(/*AUTOARG*/
 
    //counters
    wire en_read_ctr, en_write_ctr, rst_read_ctr, rst_write_ctr;
-   up_counter_3bit ctr(.clk(clk), .rst(rst), .en(en_read_ctr), .ctr_rst({1'b0}), .out(read_ctr), .err());
-   up_counter_3bit ctr1(.clk(clk), .rst(rst), .en(en_write_ctr), .ctr_rst({1'b0}), .out(write_ctr), .err());
+   up_counter_3bit ctr(.clk(clk), .rst(rst), .ctr_en(en_read_ctr), .ctr_rst({1'b0}), .out(read_ctr), .err());
+   up_counter_3bit ctr1(.clk(clk), .rst(rst), .ctr_en(en_write_ctr), .ctr_rst({1'b0}), .out(write_ctr), .err());
 
    fifo_controlla ctrl(
       //input

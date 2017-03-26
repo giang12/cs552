@@ -1,13 +1,13 @@
 module up_counter_2bit(
 	clk,
 	rst,
-	en,
+	ctr_en,
 	ctr_rst,
 	out,
 	err
 );
   
-  input clk, rst, en, ctr_rst;
+  input clk, rst, ctr_en, ctr_rst;
   output [1:0] out;
   output err;
 
@@ -22,9 +22,9 @@ module up_counter_2bit(
   dff states[1:0](.q(count), .d(next_count), .clk(clk), .rst(rst));
 
    //count logic
-	always @(posedge clk or ctr_rst) begin
+  always @(ctr_rst or ctr_en or count) begin
      	err <= 1'b0;
-     	casex({ctr_rst, en})
+     	casex({ctr_rst, ctr_en})
      		2'b1_x: begin //ctr_rst
      			next_count <= 2'b00;
      		end
