@@ -33,14 +33,14 @@ module fifo_controlla(
    reg pop;
    //or add_fifo or pop_fifo
 	//FSM stage logic
-	always @(posedge clk) begin
 
-      inc_read_ctr   <= pop; //add commit
-      inc_write_ctr  <= writeEn;  //pop commit
 
-      readEn   <= ~fifo_empty;
-      writeEn  <= ~fifo_full & add_fifo;
-      pop      <= ~fifo_empty & pop_fifo;
+   assign inc_read_ctr   = pop; //add commit
+   assign inc_write_ctr  = writeEn;  //pop commit
+
+   assign readEn = ~fifo_empty;
+   assign writeEn = ~fifo_full & add_fifo;
+   assign  pop    = ~fifo_empty & pop_fifo;
 
    end
 

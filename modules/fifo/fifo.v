@@ -21,6 +21,7 @@ module fifo(/*AUTOARG*/
 
    //your code here
    wire fifo_empty, fifo_full, writeEn, readEn, err;
+   
    // pointers 
    wire [2:0] read_ctr, write_ctr;
    wire [1:0] read_ptr, write_ptr;
@@ -65,7 +66,7 @@ module fifo(/*AUTOARG*/
 
    always @(posedge clk) begin
       $display("\n writeEn: %d readEn: %d", writeEn, readEn);
-      $display("\n read_ctr: %d write_ctr: %d", read_ctr, write_ctr);
+      $display("\n read_ctr: %d write_ctr: %d en_read_ctr: %b en_write_ctr: %b", read_ctr, write_ctr, en_read_ctr, en_write_ctr);
    end
 
 endmodule
