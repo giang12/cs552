@@ -17,7 +17,7 @@ module fifo_controlla(
    input [2:0] read_ctr, write_ctr;
    input clk, rst, add_fifo, pop_fifo;
 
-   output reg  inc_read_ctr,
+   output wire  inc_read_ctr,
                inc_write_ctr,
 
                writeEn,
@@ -30,7 +30,7 @@ module fifo_controlla(
 
    assign fifo_empty = read_ctr == write_ctr;
    assign fifo_full  = (write_ctr[2] != read_ctr[2]) & (write_ctr[1:0] == read_ctr[1:0]);
-   reg pop;
+   wire pop;
    //or add_fifo or pop_fifo
 	//FSM stage logic
 
@@ -41,8 +41,6 @@ module fifo_controlla(
    assign readEn = ~fifo_empty;
    assign writeEn = ~fifo_full & add_fifo;
    assign  pop    = ~fifo_empty & pop_fifo;
-
-   end
 
 
 endmodule

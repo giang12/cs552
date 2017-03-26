@@ -22,7 +22,7 @@ module up_counter_3bit(
   dff states[2:0](.q(count), .d(next_count), .clk(clk), .rst(rst));
 
    //count logic
-  always @(ctr_rst or count) begin
+  always @(ctr_rst or count or en) begin
      	err <= 1'b0;
       $display("\n IsCounter En: %b", en);
 

@@ -26,5 +26,7 @@ module fifo_mem(
    mux4_1_64bit mux_out(.InA(elm0), .InB(elm1), .InC(elm2), .InD(elm3), .S(read_ptr), .Out(reg_out));
 
    assign data_out = read ? reg_out : 63'b0;
-
+	always @(posedge clk) begin
+      $display("\n elm0: %h elm1: %h elm2: %h elm3: %h", elm0, elm1, elm2, elm3);
+   end
 endmodule
