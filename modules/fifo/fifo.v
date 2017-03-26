@@ -20,54 +20,58 @@ module fifo(/*AUTOARG*/
    output        err;
 
    //your code here
-   wire fifo_empty, fifo_full, writeEn, readEn, err;
-   
-   // pointers 
-   wire [2:0] read_ctr, write_ctr;
-   wire [1:0] read_ptr, write_ptr;
-   assign read_ptr  = read_ctr[1:0];
-   assign write_ptr = write_ctr[1:0];
+  assign err = ctr_err;
+  
+  wire writeEn, readEn, ctr_err;
+ 
+  // counters 
+  wire [2:0] read_ctr, write_ctr;
+  wire [1:0] read_ctr_op, write_ctr_op;//counters control msb->rst lsb->en
 
-   //counters
-   wire en_read_ctr, en_write_ctr, rst_read_ctr, rst_write_ctr;
-   up_counter_3bit ctr(.clk(clk), .rst(rst), .ctr_en(en_read_ctr), .ctr_rst({1'b0}), .out(read_ctr), .err());
-   up_counter_3bit ctr1(.clk(clk), .rst(rst), .ctr_en(en_write_ctr), .ctr_rst({1'b0}), .out(write_ctr), .err());
+  wire [1:0] read_ptr, write_ptr;
 
-   fifo_controlla ctrl(
-      //input
-      .clk(clk),
-      .rst(rst),
-      .read_ctr(read_ctr),
-      .write_ctr(write_ctr),
-      .add_fifo(data_in_valid),
-      .pop_fifo(pop_fifo),
-      //sync output
-      .inc_read_ctr(en_read_ctr),
-      .inc_write_ctr(en_write_ctr),
+  fifo_counter ctr(
+    //input
+    .rd_ctr_op(read_ctr_op),
+    .wd_ctr_op(write_ctr_op),
+    .clk(clk),
+    .rst(rst),
+    //output
+    .rd_ctr(read_ctr),
+    .wd_ctr(write_ctr),
+    .err(ctr_err)
+  );
 
-      .writeEn(writeEn),
-      .readEn(readEn),
-      //async output
-      .fifo_empty(fifo_empty),
-      .fifo_full(fifo_full)
-    );
+  fifo_controlla ctrl(
+    //input
+    .clk(clk),
+    .rst(rst),
+    .read_ctr(read_ctr),
+    .write_ctr(write_ctr),
+    .add_fifo(data_in_valid),
+    .pop_fifo(pop_fifo),
+    //output
+    .inc_read_ctr(read_ctr_op[0]),
+    .inc_write_ctr(write_ctr_op[0]),
+    .read_ptr(read_ptr),
+    .write_ptr(write_ptr),
+    .writeEn(writeEn),
+    .readEn(readEn),
+    .fifo_empty(fifo_empty),
+    .fifo_full(fifo_full)
+  );
 
-   fifo_mem mem(
-      .clk(clk),
-      .rst(rst),
-      .data_in(data_in),
-      .write(writeEn),
-      .read(readEn),
-      .write_ptr(write_ptr),
-      .read_ptr(read_ptr),
-      //output
-      .data_out(data_out)
-    );
-
-   always @(posedge clk) begin
-      $display("\n writeEn: %d readEn: %d", writeEn, readEn);
-      $display("\n read_ctr: %d write_ctr: %d en_read_ctr: %b en_write_ctr: %b", read_ctr, write_ctr, en_read_ctr, en_write_ctr);
-   end
+  fifo_mem mem(
+    .clk(clk),
+    .rst(rst),
+    .data_in(data_in),
+    .write(writeEn),
+    .read(readEn),
+    .write_ptr(write_ptr),
+    .read_ptr(read_ptr),
+    //output
+    .data_out(data_out)
+  );
 
 endmodule
 
