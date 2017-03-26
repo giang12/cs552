@@ -23,7 +23,7 @@ module fifo_mem(
    register_64bit cell3(.readdata(elm3), .clk(clk), .rst(rst), .writedata(data_in), .write(en[3]));
 
     //data out
-   mux4_1_64bit mux_out(.InA(elm0), .InB(elm1), .InC(elm2), .InD(elms), .S(read_ptr), .Out(reg_out));
+   mux4_1_64bit mux_out(.InA(elm0), .InB(elm1), .InC(elm2), .InD(elm3), .S(read_ptr), .Out(reg_out));
 
    assign data_out = read ? reg_out : 63'b0;
 
