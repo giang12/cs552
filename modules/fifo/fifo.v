@@ -64,9 +64,8 @@ module fifo(/*AUTOARG*/
     );
 
    always @(posedge clk) begin
-      $display("\n write_to: %b", en,);
+      $display("\n writeEn: %d readEn: %d", writeEn, readEn);
       $display("\n read_ctr: %d write_ctr: %d", read_ctr, write_ctr);
-
    end
 
 endmodule
