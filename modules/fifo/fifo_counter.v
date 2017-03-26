@@ -5,7 +5,7 @@ module fifo_counter(
 	input rst,
 	output [2:0] rd_ctr,
 	output [2:0] wd_ctr,
-	output err,
+	output err
 );
 	wire rd_err, wd_err;
 	assign err = rd_err | wd_err;

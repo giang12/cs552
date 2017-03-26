@@ -19,16 +19,15 @@ module fifo(/*AUTOARG*/
    output        fifo_full;
    output        err;
 
-   //your code here
-  assign err = ctr_err;
-  
+   //your code here  
   wire writeEn, readEn, ctr_err;
  
   // counters 
   wire [2:0] read_ctr, write_ctr;
   wire [1:0] read_ctr_op, write_ctr_op;//counters control msb->rst lsb->en
-
   wire [1:0] read_ptr, write_ptr;
+  
+  assign err = ctr_err;
 
   fifo_counter ctr(
     //input
