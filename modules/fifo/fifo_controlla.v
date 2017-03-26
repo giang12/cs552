@@ -29,7 +29,7 @@ module fifo_controlla(
    localparam false = 1'b0;
 
    assign fifo_empty = read_ctr == write_ctr;
-   assign fifo_full  = (write_ctr[2] != read_ctr[2]) & (write_ctr[1:0] == read_ptr[1:0]);
+   assign fifo_full  = (write_ctr[2] != read_ctr[2]) & (write_ctr[1:0] == read_ctr[1:0]);
    reg pop;
    //or add_fifo or pop_fifo
 	//FSM stage logic
