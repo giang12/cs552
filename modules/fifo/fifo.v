@@ -20,11 +20,10 @@ module fifo(/*AUTOARG*/
    output        err;
 
    //your code here  
-  wire writeEn, readEn, ctr_err;
+  wire writeEn, readEn, inc_read_ctr, inc_write_ctr, ctr_err;
  
-  // counters 
+  // counters pointers
   wire [2:0] read_ctr, write_ctr;
-  wire inc_read_ctr, inc_write_ctr;
   wire [1:0] read_ptr, write_ptr;
   
   assign err = ctr_err;
