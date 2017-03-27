@@ -24,15 +24,15 @@ module fifo(/*AUTOARG*/
  
   // counters 
   wire [2:0] read_ctr, write_ctr;
-  wire [1:0] read_ctr_op, write_ctr_op;//counters control msb->rst lsb->en
+  wire inc_read_ctr, inc_write_ctr;
   wire [1:0] read_ptr, write_ptr;
   
   assign err = ctr_err;
 
   fifo_counter ctr(
     //input
-    .rd_ctr_op(read_ctr_op),
-    .wd_ctr_op(write_ctr_op),
+    .rd_ctr_op({1'b0, inc_read_ctr}),
+    .wd_ctr_op({1'b0, inc_write_ctr}),
     .clk(clk),
     .rst(rst),
     //output
@@ -43,15 +43,13 @@ module fifo(/*AUTOARG*/
 
   fifo_controlla ctrl(
     //input
-    .clk(clk),
-    .rst(rst),
     .read_ctr(read_ctr),
     .write_ctr(write_ctr),
     .add_fifo(data_in_valid),
     .pop_fifo(pop_fifo),
     //output
-    .inc_read_ctr(read_ctr_op[0]),
-    .inc_write_ctr(write_ctr_op[0]),
+    .inc_read_ctr(inc_read_ctr),
+    .inc_write_ctr(inc_write_ctr),
     .read_ptr(read_ptr),
     .write_ptr(write_ptr),
     .writeEn(writeEn),
