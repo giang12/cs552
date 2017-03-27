@@ -31,4 +31,4 @@ module fifo_controlla(
    assign inc_read_ctr   = ~fifo_empty & pop_fifo;
    assign inc_write_ctr  = writeEn;
 
-
+endmodule

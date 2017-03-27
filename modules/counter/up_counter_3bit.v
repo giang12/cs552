@@ -38,7 +38,4 @@ module up_counter_3bit(
      		end
      	endcase
 	end
-  
 endmodule
-
-// DUMMY LINE FOR REV CONTROL :1:
