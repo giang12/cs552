@@ -9,12 +9,10 @@ module up_counter_3bit(
   
   input clk, rst, ctr_en, ctr_rst;
   output [2:0] out;
-  output err;
-
+  output reg err;
 
   wire [2:0] count;
   reg [2:0] next_count;
-  reg err;
   
   assign out = count;
 
@@ -40,5 +38,7 @@ module up_counter_3bit(
      		end
      	endcase
 	end
-
+  
 endmodule
+
+// DUMMY LINE FOR REV CONTROL :1:
