@@ -1,0 +1,17 @@
+immediate (8 bits)
+smallest value - 128 becomes -128 
+largest value - 127 remains 127
+
+displacement (11 bits)
+smallest value - 1024 - becomes -1024
+largest value - 1023
+
+register -
+largest value - 225
+smallest value - 0
+
+
+register stores with too big numbers (cannot fit in the given bits for imm/disp)
+invalid register - 
+negative immidiate 
+overflow cases
