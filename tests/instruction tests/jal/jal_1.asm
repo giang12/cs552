@@ -1,2 +1,5 @@
-jal r1, 1023
+jal r1, 4
+nop
+nop
+nop
 halt

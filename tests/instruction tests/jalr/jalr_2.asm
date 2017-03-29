@@ -1,3 +1,3 @@
-lbi r1, 0
-jalr r1, 127
+lbi r1, 8
+jalr r1, 248
 halt

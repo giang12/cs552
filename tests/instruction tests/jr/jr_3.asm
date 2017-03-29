@@ -1,3 +1,3 @@
 lbi r1, 0
-jr r1, 128
+jr r1, 2
 halt
