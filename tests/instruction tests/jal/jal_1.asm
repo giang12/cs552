@@ -1,4 +1,4 @@
-jal r1, 4
+jal 4
 nop
 nop
 nop

@@ -1,4 +1,4 @@
 nop
 lbi r1, 0
-jalr r1, 254
+jalr r1, 2
 halt

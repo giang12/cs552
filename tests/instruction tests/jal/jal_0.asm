@@ -1,4 +1,4 @@
 nop
 nop
-jal r1, 2044
+jal 2
 halt

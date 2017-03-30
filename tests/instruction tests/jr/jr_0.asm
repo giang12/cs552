@@ -1,4 +1,4 @@
 nop
-lbi r1, 255
-jr r1, 255
+lbi r1, -2
+jr r1, 4
 halt
