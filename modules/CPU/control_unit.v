@@ -2,16 +2,18 @@ module control_unit(
 	//input
 	opcode,
 	opext,
-	// outputs 
+	// outputs
+	// WB
     RegDst,
     RegDataSrcSel, 
-    RegWriteEn, 
+    RegWriteEn,
+    // MEM
     MemEn, 
-    MemWr, 
-    SignedExt,  
+    MemWr,
+    Halt,
+    // EX
     Branch, 
     Jump,
-    Halt,
     Exception,
     Rti,
     alu_b_sel,
@@ -19,7 +21,9 @@ module control_unit(
     Cin, 
     invA, 
     invB,
-    sign
+    sign,
+    //extra
+    SignedExt
     );
 
 	//input
