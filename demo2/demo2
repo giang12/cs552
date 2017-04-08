@@ -38,9 +38,6 @@ if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRt && (EX/MEM.Regi
 
 
 
-
-
-
 /*4 CASES
 - RAW 
    - 2 read reg
@@ -50,21 +47,28 @@ if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRt && (EX/MEM.Regi
 */
 
 always @(*) begin
-// RAW hazard with 2 read registers
+// RAW hazard with 2 read registers, check for opcodes corresponding to 2 reads
+//cycle diff of 2 (cycle diff of 3 shouldnt matter)
 if (ID/EX.RegWrite = 1 && (ID/EX.RegisterRd == IF/ID.RegisterRs || ID/EX.RegisterRd == IF/ID.RegisterRt)
- Stall id/ex
+ Stall if/id
+// cycle diff of 1
+if (EX/MEM.RegWrite = 1 && (EX/MEM.RegisterRd == IF/ID.RegisterRs || EX/ME.RegisterRd == IF/ID.RegisterRt)
+ Stall if/id
 
-//raw hazard with 1 read register 
-if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRs && (EX/MEM.RegisterRd != ID/EX.RegisterRs || EX/MEM.RegWrite == 0)
- Stall //forwardA = 1
-if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRt && (EX/MEM.RegisterRd != ID/EX.RegisterRt || EX/MEM.RegWrite == 0)
- Stall //ForwardB = 1
+// RAW hazard with 1 read register, check for opcodes corresponding to 1 read
+// since do not want to compare reg value with immediate do reg rt not used
+//cycle diff of 2 (cycle diff of 3 shouldnt matter)
+if (ID/EX.RegWrite = 1 && (ID/EX.RegisterRd == IF/ID.RegisterRs)
+ Stall if/id
+// cycle diff of 1
+if (EX/MEM.RegWrite = 1 && (EX/MEM.RegisterRd == IF/ID.RegisterRs)
+ Stall if/id
 
 if(opcode == halt or branch)
  Stall if/id
 
 default: 
-dont stall
+dont stall if/id
 
 end
 
