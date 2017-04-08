@@ -1,0 +1,76 @@
+module hazard_unit(opcode, if_id_regRt, if_id_regRt, id_ex_regRd, ex_mem_regRd, mem_wb_regRd, stall);
+
+input [5:0] opcode;
+input [2:0] if_id_regRt , 
+			if_id_regRt ,
+			id_ex_regRd , 
+			ex_mem_regRd, 
+			mem_wb_regRd;
+output 		stall;
+
+/* hazards 
+- RAW hazard 
+- branches
+*/
+
+/*
+control signals needed (inputs)
+
+ID/EX.RegisterRs     EX/MEM.RegisterRd       MEM/WB.RegisterRd
+ID/EX.RegisterRt     EX/MEM.RegWrite         MEM/WB.RegWrite
+*/
+
+// EX/MEM hazard
+/*if (EX/MEM.RegWrite = 1 && EX/MEM.RegisterRd == ID/EX.RegisterRs)
+ forwardA = 2
+if (EX/MEM.RegWrite = 1 && EX/MEM.RegisterRd == ID/EX.RegisterRt)
+ forwardB = 2
+*/
+// ^ wont work because register value will already have been 
+//   read so the stall has to be done on the if/id pipe?!??!
+// MEM/WB hazard
+/*if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRs && (EX/MEM.RegisterRd != ID/EX.RegisterRs || EX/MEM.RegWrite == 0)
+ Stall //forwardA = 1
+if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRt && (EX/MEM.RegisterRd != ID/EX.RegisterRt || EX/MEM.RegWrite == 0)
+ Stall //ForwardB = 1
+*/
+// but we need to have the rs, rt values which id/ex doesnt have
+
+
+
+/*4 CASES
+- RAW 
+   - 2 read reg
+   - 1 read reg
+   - 0 read reg (default)
+- branch or halt
+*/
+
+always @(*) begin
+// RAW hazard with 2 read registers, check for opcodes corresponding to 2 reads
+//cycle diff of 2 (cycle diff of 3 shouldnt matter)
+if (ID/EX.RegWrite = 1 && (ID/EX.RegisterRd == IF/ID.RegisterRs || ID/EX.RegisterRd == IF/ID.RegisterRt)
+ Stall if/id
+// cycle diff of 1
+if (EX/MEM.RegWrite = 1 && (EX/MEM.RegisterRd == IF/ID.RegisterRs || EX/ME.RegisterRd == IF/ID.RegisterRt)
+ Stall if/id
+
+// RAW hazard with 1 read register, check for opcodes corresponding to 1 read
+// since do not want to compare reg value with immediate do reg rt not used
+//cycle diff of 2 (cycle diff of 3 shouldnt matter)
+if (ID/EX.RegWrite = 1 && (ID/EX.RegisterRd == IF/ID.RegisterRs)
+ Stall if/id
+// cycle diff of 1
+if (EX/MEM.RegWrite = 1 && (EX/MEM.RegisterRd == IF/ID.RegisterRs)
+ Stall if/id
+
+if(opcode == halt or branch)
+ Stall if/id
+
+default: 
+dont stall if/id
+
+end
+
+endmodule
+
