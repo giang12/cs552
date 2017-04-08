@@ -111,8 +111,10 @@ module hazard_unit(
 		 	 jal:
 		 	 jalr:
 		 	 begin
-		 	 	stall = (pipe_if_id_regRs == pipe_id_ex_regRd) ? TRUE: FALSE; 	 
-		 	 	stall = (pipe_if_id_regRs == pipe_ex_mem_regRd) ? TRUE: FALSE; // wrong since no need for this if above stmt is true
+		 	    // ***** let it be bitwise or do not change to logical or
+		 	 	stall = ((pipe_if_id_regRs == pipe_id_ex_regRd)  | 
+		 	 			 (pipe_if_id_regRs == pipe_ex_mem_regRd)) ? 
+		 	 			 TRUE: FALSE; 	 
 		 	 end
 
 		 	 // instructions w/ 2 read registers
@@ -133,12 +135,12 @@ module hazard_unit(
 		 	 stu:
 		 	 sbi:
 		 	 begin
-		 	 	stall = (pipe_if_id_regRs == pipe_id_ex_regRd) ? TRUE: FALSE; 	 
-		 	 	stall = (pipe_if_id_regRt == pipe_id_mex_regRd) ? TRUE: FALSE; // wrong since it should a logical or of these two stmts
-		 	 																  // wrong since no need for stmts below if above stmt is true
-		 	 	stall = (pipe_if_id_regRs == pipe_ex_mem_regRd) ? TRUE: FALSE; 	 
-		 	 	stall = (pipe_if_id_regRt == pipe_ex_mem_regRd) ? TRUE: FALSE; // wrong since it should a logical or of these two stmts
-		 	 	// wrong since 
+		 	    // ***** let it be bitwise or do not change to logical or
+		 	 	stall = ((pipe_if_id_regRs == pipe_id_ex_regRd)  | 
+		 	 			 (pipe_if_id_regRt == pipe_id_mex_regRd) | 
+		 	 			 (pipe_if_id_regRs == pipe_ex_mem_regRd) | 
+		 	 			 (pipe_if_id_regRt == pipe_ex_mem_regRd)) ? 
+		 	 			 TRUE: FALSE; 	 
 		 	 end
 
   			// branch instructions
