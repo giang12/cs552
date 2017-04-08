@@ -1,0 +1,72 @@
+module hazard_unit(opcode, if_id_regRt, if_id_regRt, id_ex_regRd, ex_mem_regRd, mem_wb_regRd, stall);
+
+input [5:0] opcode;
+input [2:0] if_id_regRt , 
+			if_id_regRt ,
+			id_ex_regRd , 
+			ex_mem_regRd, 
+			mem_wb_regRd;
+output 		stall;
+
+/* hazards 
+- RAW hazard 
+- branches
+*/
+
+/*
+control signals needed (inputs)
+
+ID/EX.RegisterRs     EX/MEM.RegisterRd       MEM/WB.RegisterRd
+ID/EX.RegisterRt     EX/MEM.RegWrite         MEM/WB.RegWrite
+*/
+
+// EX/MEM hazard
+/*if (EX/MEM.RegWrite = 1 && EX/MEM.RegisterRd == ID/EX.RegisterRs)
+ forwardA = 2
+if (EX/MEM.RegWrite = 1 && EX/MEM.RegisterRd == ID/EX.RegisterRt)
+ forwardB = 2
+*/
+// ^ wont work because register value will already have been 
+//   read so the stall has to be done on the if/id pipe?!??!
+// MEM/WB hazard
+/*if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRs && (EX/MEM.RegisterRd != ID/EX.RegisterRs || EX/MEM.RegWrite == 0)
+ Stall //forwardA = 1
+if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRt && (EX/MEM.RegisterRd != ID/EX.RegisterRt || EX/MEM.RegWrite == 0)
+ Stall //ForwardB = 1
+*/
+// but we need to have the rs, rt values which id/ex doesnt have
+
+
+
+
+
+
+/*4 CASES
+- RAW 
+   - 2 read reg
+   - 1 read reg
+   - 0 read reg (default)
+- branch or halt
+*/
+
+always @(*) begin
+// RAW hazard with 2 read registers
+if (ID/EX.RegWrite = 1 && (ID/EX.RegisterRd == IF/ID.RegisterRs || ID/EX.RegisterRd == IF/ID.RegisterRt)
+ Stall id/ex
+
+//raw hazard with 1 read register 
+if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRs && (EX/MEM.RegisterRd != ID/EX.RegisterRs || EX/MEM.RegWrite == 0)
+ Stall //forwardA = 1
+if (MEM/WB.RegWrite = 1 && MEM/WB.RegisterRd == ID/EX.RegisterRt && (EX/MEM.RegisterRd != ID/EX.RegisterRt || EX/MEM.RegWrite == 0)
+ Stall //ForwardB = 1
+
+if(opcode == halt or branch)
+ Stall if/id
+
+default: 
+dont stall
+
+end
+
+endmodule
+
