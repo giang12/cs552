@@ -5,7 +5,7 @@ module regIFID(
 );
 	input [15:0] instr_in, pcCurrent_in, pcPlusTwo_in;
 	
-	input flush, clk, rst;
+	input flush, en, clk, rst;
 
 	output [15:0] instr_out, pcCurrent_out, pcPlusTwo_out;
 

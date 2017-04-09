@@ -26,6 +26,9 @@ module proc (/*AUTOARG*/
    wire Rti, Exception, Halt;
    wire [15:0] WriteBack_Data;
    wire [15:0] Next_Instr_Addr; //next instr address to execute, either PC+2 or JUMP/branch
+   
+   wire [7:0]  idex_WB_control_out, idex_MEM_control_out;
+   wire [7:0]  memwb_WB_control_out;
 
 
    /**
@@ -39,7 +42,7 @@ module proc (/*AUTOARG*/
       .pcPlusTwo(fetch_pc_plus_two_out), 
       //input
       .address(Next_Instr_Addr), 
-      .halt(Halt), //todo ~stall from hazard detect
+      .halt(idex_MEM_control_out[2]), //todo ~stall from hazard detect
       .clk(clk), 
       .rst(rst)
    );
@@ -49,8 +52,8 @@ module proc (/*AUTOARG*/
    wire [15:0] ifid_instr_out, ifid_pcCurrent_out, ifid_pcPlusTwo_out;
    regIFID IFID(
    //control inputs
-   .flush(flush), //from exec branch predictor
-   .en(~stall) //from hazard detector
+   .flush(1'b0), //flush from exec branch predictor
+   .en(1'b1), //~stallfrom hazard detector
    .clk(clk), 
    .rst(rst),
    //data inputs
@@ -81,19 +84,19 @@ module proc (/*AUTOARG*/
       //input 
       .Instr(ifid_instr_out),
       //write back input
-      .wb_dst(),
+      .wb_dst(memwb_WB_control_out[2:0]),
       .wb_data(WriteBack_Data), //wb data
-      .wb_en(),
+      .wb_en(memwb_WB_control_out[6]),
       .clk(clk),
       .rst(rst)
    );
    /**
     * ID/EX Reg
     */
+   
    //control_signals = flush ? 0 : control_signals;
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
-   wire [7:0]  idex_WB_control_out, idex_MEM_control_out;
    wire [15:0] idex_EX_control_out;
    regIDEX IDEX(
       //reg control inputs
@@ -129,19 +132,18 @@ module proc (/*AUTOARG*/
       .MEM_control_out(idex_MEM_control_out),
       .EX_control_out(idex_EX_control_out)
    );
-
-
    /**
     * Execute/Address Calculation (EX)
     */
    wire [15:0] alu_out, slbi_out, btr_out, cond_out;
    execute execute0(
-      // Outputs
-      .next(Next_Instr_Addr), 
-      .alu_out(alu_out), 
+      // Global Output
+      .next(Next_Instr_Addr),
+      //output to next stage
+      .alu_out(alu_out),
       .slbi_out(slbi_out),
       .btr_out(btr_out),
-      .cond_out(cond_out), 
+      .cond_out(cond_out),
       // Inputs
       .instr(idex_instr_out),
       .pc(idex_pcCurrent_out), 
@@ -152,7 +154,7 @@ module proc (/*AUTOARG*/
       .imm_8_ext(idex_imm_8_ext_out), 
       .imm_11_ext(idex_imm_11_ext_out),
 
-      .alu_a_sel(idex_EX_control_out[4:5]), //reserved
+      .alu_a_sel(idex_EX_control_out[5:4]), //reserved
       .alu_b_sel(idex_EX_control_out[7:6]),
       .alu_op(idex_EX_control_out[10:8]),
       .Cin(idex_EX_control_out[11]),
@@ -168,6 +170,43 @@ module proc (/*AUTOARG*/
       .rst(rst)
    );
 
+   /**
+    * EX/MEM Reg
+    */
+   //TODO: flush WB / MEM control in?
+   wire [15:0] exmem_write_data_out, exmem_pcPlusTwo_out, exmem_imm_8_ext_out, 
+               exmem_alu_out, exmem_slbi_out, exmem_btr_out, exmem_cond_out;
+   wire [7:0]  exmem_WB_control_out, exmem_MEM_control_out;
+   regEXMem EXMEM(
+      //reg control inputs
+      .clk(clk),
+      .rst(rst),
+      .en(1'b1),// stall?
+      //data inputs
+      .write_data_in(idex_data2_out),
+      .pcPlusTwo_in(idex_pcPlusTwo_out),
+      .imm_8_ext_in(idex_imm_8_ext_out),
+      .alu_out_in(alu_out),
+      .slbi_out_in(slbi_out),
+      .btr_out_in(btr_out),
+      .cond_out_in(cond_out),
+      //control inputs
+      .WB_control_in(idex_WB_control_out),
+      .MEM_control_in(idex_MEM_control_out),
+
+      //data outputs
+      .write_data_out(exmem_write_data_out),
+      .pcPlusTwo_out(exmem_pcPlusTwo_out),
+      .imm_8_ext_out(exmem_imm_8_ext_out),
+      .alu_out(exmem_alu_out),
+      .slbi_out(exmem_slbi_out),
+      .btr_out(exmem_btr_out),
+      .cond_out(exmem_cond_out),
+      //control outputs
+      .WB_control_out(exmem_WB_control_out),
+      .MEM_control_out(exmem_MEM_control_out)
+   );
+
    /** 
     * Memory Access (MEM)
     */
@@ -176,15 +215,47 @@ module proc (/*AUTOARG*/
       //output
       .readData(mem_data_out), 
       //input
-      .addr(alu_out), 
-      .writeData(data2), 
-      .en(MemEn), 
-      .write(MemWr), 
-      .halt(Halt), //createdump
+      .addr(exmem_alu_out), 
+      .writeData(exmem_write_data_out), 
+      .en(exmem_MEM_control_out[0]), 
+      .write(exmem_MEM_control_out[1]), 
+      .halt(exmem_MEM_control_out[2]), //createdump
       .clk(clk), 
       .rst(rst)
    );
 
+   /**
+    * MemWB Reg
+    */
+   wire [15:0] memwb_mem_data_out, memwb_pcPlusTwo_out, memwb_imm_8_ext_out, 
+               memwb_alu_out, memwb_slbi_out, memwb_btr_out, memwb_cond_out;
+   regMemWB MemWB(
+      //reg control inputs
+      .clk(clk),
+      .rst(rst),
+      .en(1'b1),// stall?
+      //data inputs
+      .mem_data_in(mem_data_out),
+      .pcPlusTwo_in(exmem_pcPlusTwo_out),
+      .imm_8_ext_in(exmem_imm_8_ext_out),
+      .alu_out_in(exmem_alu_out),
+      .slbi_out_in(exmem_slbi_out),
+      .btr_out_in(exmem_btr_out),
+      .cond_out_in(exmem_cond_out),
+      //control inputs
+      .WB_control_in(exmem_WB_control_out),
+
+      //data outputs
+      .mem_data_out(memwb_mem_data_out),
+      .pcPlusTwo_out(memwb_pcPlusTwo_out),
+      .imm_8_ext_out(memwb_imm_8_ext_out),
+      .alu_out(memwb_alu_out),
+      .slbi_out(memwb_slbi_out),
+      .btr_out(memwb_btr_out),
+      .cond_out(memwb_cond_out),
+      //control outputs
+      .WB_control_out(memwb_WB_control_out)
+   );
    /**
     * Write Back (WB)
     */
@@ -192,14 +263,14 @@ module proc (/*AUTOARG*/
       // Outputs
       .data(WriteBack_Data),
       // Inputs
-      .DataSrcSel(RegDataSrc),
-      .mem_data_out(mem_data_out),
-      .alu_out(alu_out),
-      .imm_8_ext(imm_8_ext),
-      .slbi_out(slbi_out),
-      .btr_out(btr_out),
-      .pc_plus_two(PC_Plus_Two),
-      .cond_out(cond_out),
+      .DataSrcSel(memwb_WB_control_out[5:3]),
+      .mem_data_out(memwb_mem_data_out),
+      .alu_out(memwb_alu_out),
+      .imm_8_ext(memwb_imm_8_ext_out),
+      .slbi_out(memwb_slbi_out),
+      .btr_out(memwb_btr_out),
+      .pc_plus_two(memwb_pcPlusTwo_out),
+      .cond_out(memwb_cond_out),
       .constant(16'bxxxx_xxxx_xxxx_xxxx)// should never
    );
    

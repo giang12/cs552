@@ -29,6 +29,7 @@ module execute(
       input clk,
       input rst
    );
+//TODO: data1 & data2 forwarding
 
 //SLBI path
 wire [15:0] data1_leftshift8;

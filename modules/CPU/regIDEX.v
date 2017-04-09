@@ -1,4 +1,4 @@
-module IDEX(
+module regIDEX(
 	//reg control inputs
 	input clk,
 	input rst,

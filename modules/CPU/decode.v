@@ -51,8 +51,7 @@ module decode(
     wire [1:0] RegDst;
     //internal control signals
     //WB    
-    wire [2:0] writeregsel;
-    wire [2:0] RegDataSrcSel, //for write stage
+    wire [2:0] writeregsel, RegDataSrcSel; //for write stage
     wire RegWriteEn;
     //MEM
     wire MemEn; //should en data memory?
@@ -82,7 +81,7 @@ module decode(
     assign MEM_control_sigs[1] = MemWr;
     assign MEM_control_sigs[2] = Halt;
     assign MEM_control_sigs[7:3] = 5'bxxxxx; //reserved;
-    
+
     assign EX_control_sigs[0] = Branch;
     assign EX_control_sigs[1] = Jump;
     assign EX_control_sigs[2] = Exception;
@@ -94,7 +93,7 @@ module decode(
     assign EX_control_sigs[12] = invA;
     assign EX_control_sigs[13] = invB;
     assign EX_control_sigs[14] = sign;
-    assign EX_control_sigs[15] = 1'bx //reserved;
+    assign EX_control_sigs[15] = 1'bx; //reserved
     // WB [7:0]    // MEM [15:8]    // EX [31:16]
     assign control_signals = {EX_control_sigs, MEM_control_sigs, WB_control_sigs};
 
