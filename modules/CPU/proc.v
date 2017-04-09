@@ -152,18 +152,18 @@ module proc (/*AUTOARG*/
       .imm_8_ext(idex_imm_8_ext_out), 
       .imm_11_ext(idex_imm_11_ext_out),
 
-      .alu_a_sel(2'b0), //reserved
-      .alu_b_sel(idex_EX_control_out[5:4]),
-      .alu_op(idex_EX_control_out[8:6]),
-      .Cin(idex_EX_control_out[9]),
-      .invA(idex_EX_control_out[10]),
-      .invB(idex_EX_control_out[11]), 
-      .sign(idex_EX_control_out[12]), 
-
+      .alu_a_sel(idex_EX_control_out[4:5]), //reserved
+      .alu_b_sel(idex_EX_control_out[7:6]),
+      .alu_op(idex_EX_control_out[10:8]),
+      .Cin(idex_EX_control_out[11]),
+      .invA(idex_EX_control_out[12]),
+      .invB(idex_EX_control_out[13]), 
+      .sign(idex_EX_control_out[14]), 
       .exception(idex_EX_control_out[2]), // there is error
       .rti(idex_EX_control_out[3]),
       .jump(idex_EX_control_out[1]),
       .branch(idex_EX_control_out[0]),
+
       .clk(clk),
       .rst(rst)
    );
