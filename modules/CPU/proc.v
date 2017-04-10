@@ -23,11 +23,14 @@ module proc (/*AUTOARG*/
    // cases that you think are illegal in your statemachines
    
    //Feedback wires
-   wire Rti, Exception, Halt;
-   wire [15:0] WriteBack_Data;
+   wire Rti, Exception, Halt, Flush, Stall;
+   wire [15:0] WriteBack_Data, Prior_ALU_Res;
    wire [15:0] Next_Instr_Addr; //next instr address to execute, either PC+2 or JUMP/branch
    
    wire [7:0]  idex_WB_control_out, idex_MEM_control_out;
+
+   wire [7:0]  exmem_WB_control_out, exmem_MEM_control_out;
+
    wire [7:0]  memwb_WB_control_out;
 
 
@@ -52,7 +55,7 @@ module proc (/*AUTOARG*/
    wire [15:0] ifid_instr_out, ifid_pcCurrent_out, ifid_pcPlusTwo_out;
    regIFID IFID(
    //control inputs
-   .flush(1'b0), //flush from exec branch predictor
+   .flush(Flush), //flush from exec branch predictor
    .en(1'b1), //~stallfrom hazard detector
    .clk(clk), 
    .rst(rst),
@@ -65,6 +68,7 @@ module proc (/*AUTOARG*/
    .pcCurrent_out(ifid_pcCurrent_out), 
    .pcPlusTwo_out(ifid_pcPlusTwo_out)
    );
+   
 
    /**
     * Instruction Decode/Register Fetch (ID)
@@ -94,10 +98,20 @@ module proc (/*AUTOARG*/
     * ID/EX Reg
     */
    
-   //control_signals = flush ? 0 : control_signals;
+   wire [31:0] control_signals_in = Flush ? 0 : control_signals;
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
    wire [15:0] idex_EX_control_out;
+
+   hazard_detector hazy(
+   // output 
+   .stall(Stall),
+   //inputs
+   .idex_Instr(idex_instr_out),
+   .ifid_Instr(ifid_instr_out),
+   .idex_MemRead(idex_MEM_control_out[0])
+   );
+
    regIDEX IDEX(
       //reg control inputs
       .clk(clk),
@@ -114,9 +128,9 @@ module proc (/*AUTOARG*/
       .imm_8_ext_in(imm_8_ext),
       .imm_11_ext_in(imm_11_ext),
       //control inputs
-      .WB_control_in(control_signals[7:0]),
-      .MEM_control_in(control_signals[15:8]),
-      .EX_control_in(control_signals[31:16]),
+      .WB_control_in(control_signals_in[7:0]),
+      .MEM_control_in(control_signals_in[15:8]),
+      .EX_control_in(control_signals_in[31:16]),
       //data outputs
       .instr_out(idex_instr_out), 
       .pcCurrent_out(idex_pcCurrent_out), 
@@ -136,8 +150,10 @@ module proc (/*AUTOARG*/
     * Execute/Address Calculation (EX)
     */
    wire [15:0] alu_out, slbi_out, btr_out, cond_out;
+   wire [1:0] forwardA, forwardB;
    execute execute0(
       // Global Output
+      .flush(Flush),
       .next(Next_Instr_Addr),
       //output to next stage
       .alu_out(alu_out),
@@ -148,8 +164,8 @@ module proc (/*AUTOARG*/
       .instr(idex_instr_out),
       .pc(idex_pcCurrent_out), 
       .pc_plus_two(idex_pcPlusTwo_out), 
-      .data1(idex_data1_out), 
-      .data2(idex_data2_out), 
+      .data1_in(idex_data1_out), 
+      .data2_in(idex_data2_out), 
       .imm_5_ext(idex_imm_5_ext_out), 
       .imm_8_ext(idex_imm_8_ext_out), 
       .imm_11_ext(idex_imm_11_ext_out),
@@ -165,18 +181,32 @@ module proc (/*AUTOARG*/
       .rti(idex_EX_control_out[3]),
       .jump(idex_EX_control_out[1]),
       .branch(idex_EX_control_out[0]),
-
+      //feedback forwarding data
+      .prior_alu_out(Prior_ALU_Res),
+      .wb_data(WriteBack_Data),
+      .forwardA(forwardA),
+      .forwardB(forwardB),
       .clk(clk),
       .rst(rst)
+   );
+
+   forwarding_unit fwd(
+      //output
+      .forwardA(forwardA),
+      .forwardB(forwardB),
+      //input
+      .idex_Instr(idex_instr_out),
+      .exmem_RegWriteEn(exmem_WB_control_out[6]),
+      .exmem_RegD(exmem_WB_control_out[2:0]),
+      .memwb_RegWriteEn(memwb_WB_control_out[6]),
+      .memwb_RegD(memwb_WB_control_out[2:0])
    );
 
    /**
     * EX/MEM Reg
     */
-   //TODO: flush WB / MEM control in?
    wire [15:0] exmem_write_data_out, exmem_pcPlusTwo_out, exmem_imm_8_ext_out, 
                exmem_alu_out, exmem_slbi_out, exmem_btr_out, exmem_cond_out;
-   wire [7:0]  exmem_WB_control_out, exmem_MEM_control_out;
    regEXMem EXMEM(
       //reg control inputs
       .clk(clk),
@@ -206,6 +236,8 @@ module proc (/*AUTOARG*/
       .WB_control_out(exmem_WB_control_out),
       .MEM_control_out(exmem_MEM_control_out)
    );
+
+   assign Prior_ALU_Res = exmem_alu_out;
 
    /** 
     * Memory Access (MEM)

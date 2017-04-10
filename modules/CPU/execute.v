@@ -1,5 +1,6 @@
 module execute(
       // Outputs
+      output flush,
       output [15:0] next, 
       output [15:0] alu_out,
       output [15:0] slbi_out,
@@ -9,8 +10,8 @@ module execute(
       input [15:0] instr,
       input [15:0] pc, 
       input [15:0] pc_plus_two, 
-      input [15:0] data1, 
-      input [15:0] data2, 
+      input [15:0] data1_in, 
+      input [15:0] data2_in, 
       input [15:0] imm_5_ext, 
       input [15:0] imm_8_ext, 
       input [15:0] imm_11_ext, 
@@ -26,10 +27,17 @@ module execute(
       input rti,
       input jump, 
       input branch,
+      input [15:0] prior_alu_out,
+      input [15:0] wb_data,
+      input [1:0] forwardA,
+      input [1:0] forwardB,
       input clk,
       input rst
    );
-//TODO: data1 & data2 forwarding
+//TODO: input A & input B forwarding
+wire [15:0] data1, data2;
+mux4_1_16bit fwdA(.InA(data1_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardA), .Out(data1));
+mux4_1_16bit fwdB(.InA(data2_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardB), .Out(data2));
 
 //SLBI path
 wire [15:0] data1_leftshift8;
@@ -119,5 +127,6 @@ mux8_1_16bit branch_src(
       .Out(next)
 );
 
+assign flush = exception | rti | br_jmp;
 
 endmodule
