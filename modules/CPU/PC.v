@@ -3,6 +3,7 @@ module PC(
 	output [15:0] pcNext,
 	input [3:0]	instrLen,
 	input [15:0] set,
+	input en,
 	input clk,
 	input rst
 );
@@ -13,7 +14,7 @@ module PC(
        // Outputs
        .readdata(pcCurrent),
        // Inputs
-       .clk(clk), .rst(rst), .writedata(set), .write(1'b1)
+       .clk(clk), .rst(rst), .writedata(set), .write(en)
     );
 
 	cla_16bit adder0(	

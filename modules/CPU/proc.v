@@ -45,7 +45,8 @@ module proc (/*AUTOARG*/
       .pcPlusTwo(fetch_pc_plus_two_out), 
       //input
       .address(Next_Instr_Addr), 
-      .halt(idex_MEM_control_out[2]), //todo ~stall from hazard detect
+      .halt(Flush), //todo ~stall from hazard detect
+      .en(~Stall),
       .clk(clk), 
       .rst(rst)
    );
@@ -56,7 +57,7 @@ module proc (/*AUTOARG*/
    regIFID IFID(
    //control inputs
    .flush(Flush), //flush from exec branch predictor
-   .en(1'b1), //~stallfrom hazard detector
+   .en(~Stall), //~stallfrom hazard detector
    .clk(clk), 
    .rst(rst),
    //data inputs
@@ -97,8 +98,10 @@ module proc (/*AUTOARG*/
    /**
     * ID/EX Reg
     */
-   
-   wire [31:0] control_signals_in = Flush ? 0 : control_signals;
+   //remove Stall | Flush I will kill you
+   wire [31:0] control_signals_in = (Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
+   wire [15:0] idex_instr_in = Flush ? 16'b0000100000000000 : ifid_instr_out;
+
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
    wire [15:0] idex_EX_control_out;
@@ -107,9 +110,10 @@ module proc (/*AUTOARG*/
    // output 
    .stall(Stall),
    //inputs
-   .idex_Instr(idex_instr_out),
    .ifid_Instr(ifid_instr_out),
-   .idex_MemRead(idex_MEM_control_out[0])
+   .idex_Instr(idex_instr_out),
+   .idex_MemRead(idex_MEM_control_out[0]),
+   .idex_MemWr(idex_MEM_control_out[1])
    );
 
    regIDEX IDEX(
@@ -118,7 +122,7 @@ module proc (/*AUTOARG*/
       .rst(rst),
       .en(1'b1),
       //data inputs
-      .instr_in(ifid_instr_out), 
+      .instr_in(idex_instr_in), 
       .pcCurrent_in(ifid_pcCurrent_out), 
       .pcPlusTwo_in(ifid_pcPlusTwo_out),
 
@@ -149,13 +153,14 @@ module proc (/*AUTOARG*/
    /**
     * Execute/Address Calculation (EX)
     */
-   wire [15:0] alu_out, slbi_out, btr_out, cond_out;
+   wire [15:0] alu_out, slbi_out, btr_out, cond_out, data_to_mem;
    wire [1:0] forwardA, forwardB;
    execute execute0(
       // Global Output
       .flush(Flush),
       .next(Next_Instr_Addr),
       //output to next stage
+      .data_to_mem(data_to_mem),
       .alu_out(alu_out),
       .slbi_out(slbi_out),
       .btr_out(btr_out),
@@ -213,7 +218,7 @@ module proc (/*AUTOARG*/
       .rst(rst),
       .en(1'b1),// stall?
       //data inputs
-      .write_data_in(idex_data2_out),
+      .write_data_in(data_to_mem),
       .pcPlusTwo_in(idex_pcPlusTwo_out),
       .imm_8_ext_in(idex_imm_8_ext_out),
       .alu_out_in(alu_out),
@@ -237,8 +242,22 @@ module proc (/*AUTOARG*/
       .MEM_control_out(exmem_MEM_control_out)
    );
 
-   assign Prior_ALU_Res = exmem_alu_out;
-
+   //assign Prior_ALU_Res = exmem_alu_out;
+   mux8_1_16bit ewqeq(
+    // Outputs
+    .Out(Prior_ALU_Res),
+    // Inputs
+    .S(exmem_WB_control_out[5:3]),
+    .In0(16'bxxxx_xxxx_xxxx_xxxx),
+    .In1(exmem_alu_out),
+    .In2(exmem_imm_8_ext_out),
+    .In3(exmem_slbi_out),
+    .In4(exmem_btr_out),
+    .In5(exmem_pcPlusTwo_out),
+    .In6(exmem_cond_out),
+    .In7(16'bxxxx_xxxx_xxxx_xxxx)
+  );
+   //place or commiter
    /** 
     * Memory Access (MEM)
     */

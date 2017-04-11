@@ -75,30 +75,30 @@ module decode(
     assign WB_control_sigs[2:0] = writeregsel;
     assign WB_control_sigs[5:3] = RegDataSrcSel;
     assign WB_control_sigs[6] = RegWriteEn;
-    assign WB_control_sigs[7] = 1'bx; //reserved
+    assign WB_control_sigs[7] = 1'b0; //reserved
 
     assign MEM_control_sigs[0] = MemEn;
     assign MEM_control_sigs[1] = MemWr;
     assign MEM_control_sigs[2] = Halt;
-    assign MEM_control_sigs[7:3] = 5'bxxxxx; //reserved;
+    assign MEM_control_sigs[7:3] = 5'b0; //reserved;
 
     assign EX_control_sigs[0] = Branch;
     assign EX_control_sigs[1] = Jump;
     assign EX_control_sigs[2] = Exception;
     assign EX_control_sigs[3] = Rti;
-    assign EX_control_sigs[5:4] = 2'bxx; //reserved for alu_a_sel
+    assign EX_control_sigs[5:4] = 2'b00; //reserved for alu_a_sel
     assign EX_control_sigs[7:6] = alu_b_sel;
     assign EX_control_sigs[10:8] = alu_op;
     assign EX_control_sigs[11] = Cin;
     assign EX_control_sigs[12] = invA;
     assign EX_control_sigs[13] = invB;
     assign EX_control_sigs[14] = sign;
-    assign EX_control_sigs[15] = 1'bx; //reserved
+    assign EX_control_sigs[15] = 1'b0; //reserved
     // WB [7:0]    // MEM [15:8]    // EX [31:16]
     assign control_signals = {EX_control_sigs, MEM_control_sigs, WB_control_sigs};
 
 
-    rf  regFile0(   
+    rf_bypass regFile0(   
         //output
         .read1data(data1), 
         .read2data(data2), 

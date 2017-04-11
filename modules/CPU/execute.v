@@ -1,7 +1,8 @@
 module execute(
       // Outputs
       output flush,
-      output [15:0] next, 
+      output [15:0] next,
+      output [15:0] data_to_mem,
       output [15:0] alu_out,
       output [15:0] slbi_out,
       output [15:0] btr_out,
@@ -38,6 +39,7 @@ module execute(
 wire [15:0] data1, data2;
 mux4_1_16bit fwdA(.InA(data1_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardA), .Out(data1));
 mux4_1_16bit fwdB(.InA(data2_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardB), .Out(data2));
+mux4_1_16bit memd(.InA(data2_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardB), .Out(data_to_mem));
 
 //SLBI path
 wire [15:0] data1_leftshift8;
