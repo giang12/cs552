@@ -45,7 +45,7 @@ module proc (/*AUTOARG*/
       .pcPlusTwo(fetch_pc_plus_two_out), 
       //input
       .address(Next_Instr_Addr), 
-      .halt(Flush), //todo ~stall from hazard detect
+      .pc_sel(Flush),
       .en(~Stall),
       .clk(clk), 
       .rst(rst)
@@ -241,9 +241,8 @@ module proc (/*AUTOARG*/
       .WB_control_out(exmem_WB_control_out),
       .MEM_control_out(exmem_MEM_control_out)
    );
-
-   //assign Prior_ALU_Res = exmem_alu_out;
-   mux8_1_16bit ewqeq(
+   //alu committer
+   mux8_1_16bit prev_alu_out(
     // Outputs
     .Out(Prior_ALU_Res),
     // Inputs
@@ -257,7 +256,6 @@ module proc (/*AUTOARG*/
     .In6(exmem_cond_out),
     .In7(16'bxxxx_xxxx_xxxx_xxxx)
   );
-   //place or commiter
    /** 
     * Memory Access (MEM)
     */

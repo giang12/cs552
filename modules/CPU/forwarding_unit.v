@@ -26,16 +26,14 @@ module forwarding_unit(
 	and (MEM/WB.RegisterRd ≠ 0)
 	and (MEM/WB.RegisterRd = ID/EX.RegisterRt)) ForwardB = 01
  */
-wire voodoo;
-match_both match0 (.opcode(idex_Instr[15:11]), .matchBoth(voodoo));
 
 assign forwardA = (exmem_RegWriteEn & (exmem_RegD == idex_Instr[10:8])) ? 2'b10 :
 				  (memwb_RegWriteEn & (memwb_RegD == idex_Instr[10:8])) ? 2'b01 : 2'b00;
 
 
 
-assign forwardB = (voodoo & exmem_RegWriteEn & (exmem_RegD == idex_Instr[7:5])) ? 2'b10 :
-				  (voodoo & memwb_RegWriteEn & (memwb_RegD == idex_Instr[7:5])) ? 2'b01 : 2'b00;
+assign forwardB = (  exmem_RegWriteEn & (exmem_RegD == idex_Instr[7:5])) ? 2'b10 :
+				  (  memwb_RegWriteEn & (memwb_RegD == idex_Instr[7:5])) ? 2'b01 : 2'b00;
 
 
 

@@ -1,6 +1,6 @@
-module fetch(instr, pcCurrent, pcPlusTwo, address, halt, en, clk, rst);
+module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 
-	input clk, rst, halt, en;
+	input clk, rst, pc_sel, en;
 	input [15:0] address;
 
 	output [15:0] instr, pcCurrent, pcPlusTwo;
@@ -9,7 +9,7 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, halt, en, clk, rst);
     mux2_1_16bit pc_next_mux(	
     	.InA(pcPlusTwo), 
 		.InB(address), 
-		.S(halt), 
+		.S(pc_sel), 
 		.Out(next_pc)
 	);
 

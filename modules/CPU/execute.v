@@ -35,11 +35,13 @@ module execute(
       input clk,
       input rst
    );
-//TODO: input A & input B forwarding
+
 wire [15:0] data1, data2;
+
+assign data_to_mem = data2;
+
 mux4_1_16bit fwdA(.InA(data1_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardA), .Out(data1));
 mux4_1_16bit fwdB(.InA(data2_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardB), .Out(data2));
-mux4_1_16bit memd(.InA(data2_in), .InB(wb_data), .InC(prior_alu_out), .InD(16'hx), .S(forwardB), .Out(data_to_mem));
 
 //SLBI path
 wire [15:0] data1_leftshift8;

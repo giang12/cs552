@@ -7,25 +7,6 @@ module decode(
     output [15:0] imm_8_ext,
     output [15:0] imm_11_ext,
     output [31:0] control_signals,
-    /*
-    output [1:0] alu_b_sel, //select B input for alu
-    output [2:0] alu_op, //alu opcode
-    output Cin,
-    output invA,
-    output invB,
-    output sign,
-
-    output [2:0] RegDataSrcSel, //for write stage
-
-    output MemEn, //should en data memory?
-    output MemWr, //should write result to data memory
-
-    output Branch, // branch flag
-    output Jump, //jump flag
-    output Halt, //halting, create dump
-    output Exception, // there is error
-    output Rti,
-    */
     //control input
     input [15:0] Instr, //to decode
     //write back input
