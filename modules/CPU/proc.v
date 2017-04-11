@@ -24,15 +24,13 @@ module proc (/*AUTOARG*/
    
    //Feedback wires
    wire Rti, Exception, Halt, Flush, Stall;
-   wire [15:0] WriteBack_Data, Prior_ALU_Res;
+   // for fetch
    wire [15:0] Next_Instr_Addr; //next instr address to execute, either PC+2 or JUMP/branch
-   
-   wire [7:0]  idex_WB_control_out, idex_MEM_control_out;
-
-   wire [7:0]  exmem_WB_control_out, exmem_MEM_control_out;
-
-   wire [7:0]  memwb_WB_control_out;
-
+   // for decode
+   wire [15:0] WB_Data; wire [2:0] WB_Dst; wire WB_en;
+   // for exec
+   wire [1:0] forwardA, forwardB;
+   wire [15:0] Prior_ALU_Res;
 
    /**
     * Instruction Fetch (IF)
@@ -46,7 +44,7 @@ module proc (/*AUTOARG*/
       //input
       .address(Next_Instr_Addr), 
       .pc_sel(Flush),
-      .en(~Stall),
+      .en(~Stall & ~Halt),
       .clk(clk), 
       .rst(rst)
    );
@@ -89,43 +87,33 @@ module proc (/*AUTOARG*/
       //input 
       .Instr(ifid_instr_out),
       //write back input
-      .wb_dst(memwb_WB_control_out[2:0]),
-      .wb_data(WriteBack_Data), //wb data
-      .wb_en(memwb_WB_control_out[6]),
+      .wb_dst(WB_Dst),
+      .wb_data(WB_Data),
+      .wb_en(WB_en),
       .clk(clk),
       .rst(rst)
    );
    /**
     * ID/EX Reg
     */
-   //remove Stall | Flush I will kill you
+   //remove Stall | Flush  and I will kill you
    wire [31:0] control_signals_in = (Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
-   wire [15:0] idex_instr_in = Flush ? 16'b0000100000000000 : ifid_instr_out;
-
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
    wire [15:0] idex_EX_control_out;
-
-   hazard_detector hazy(
-   // output 
-   .stall(Stall),
-   //inputs
-   .ifid_Instr(ifid_instr_out),
-   .idex_Instr(idex_instr_out),
-   .idex_MemRead(idex_MEM_control_out[0]),
-   .idex_MemWr(idex_MEM_control_out[1])
-   );
+   wire [7:0]  idex_WB_control_out, idex_MEM_control_out;
+   assign Halt = control_signals_in[10]; //TODO: find better place to assign Halt
 
    regIDEX IDEX(
       //reg control inputs
+      .flush(Flush),
+      .en(1'b1), //always
       .clk(clk),
       .rst(rst),
-      .en(1'b1),
       //data inputs
-      .instr_in(idex_instr_in), 
+      .instr_in(ifid_instr_out), 
       .pcCurrent_in(ifid_pcCurrent_out), 
       .pcPlusTwo_in(ifid_pcPlusTwo_out),
-
       .data1_in(data1),
       .data2_in(data2),
       .imm_5_ext_in(imm_5_ext),
@@ -153,11 +141,12 @@ module proc (/*AUTOARG*/
    /**
     * Execute/Address Calculation (EX)
     */
-   wire [15:0] alu_out, slbi_out, btr_out, cond_out, data_to_mem;
-   wire [1:0] forwardA, forwardB;
+   wire [15:0] data_to_mem, alu_out, slbi_out, btr_out, cond_out;
+   assign Rti = idex_EX_control_out[2];
+   assign Exception = idex_EX_control_out[3];
    execute execute0(
       // Global Output
-      .flush(Flush),
+      .flush(Flush), // on branch, jump, rti, exception
       .next(Next_Instr_Addr),
       //output to next stage
       .data_to_mem(data_to_mem),
@@ -188,23 +177,11 @@ module proc (/*AUTOARG*/
       .branch(idex_EX_control_out[0]),
       //feedback forwarding data
       .prior_alu_out(Prior_ALU_Res),
-      .wb_data(WriteBack_Data),
+      .wb_data(WB_Data),
       .forwardA(forwardA),
       .forwardB(forwardB),
       .clk(clk),
       .rst(rst)
-   );
-
-   forwarding_unit fwd(
-      //output
-      .forwardA(forwardA),
-      .forwardB(forwardB),
-      //input
-      .idex_Instr(idex_instr_out),
-      .exmem_RegWriteEn(exmem_WB_control_out[6]),
-      .exmem_RegD(exmem_WB_control_out[2:0]),
-      .memwb_RegWriteEn(memwb_WB_control_out[6]),
-      .memwb_RegD(memwb_WB_control_out[2:0])
    );
 
    /**
@@ -212,6 +189,8 @@ module proc (/*AUTOARG*/
     */
    wire [15:0] exmem_write_data_out, exmem_pcPlusTwo_out, exmem_imm_8_ext_out, 
                exmem_alu_out, exmem_slbi_out, exmem_btr_out, exmem_cond_out;
+   wire [7:0]  exmem_WB_control_out, exmem_MEM_control_out;
+
    regEXMem EXMEM(
       //reg control inputs
       .clk(clk),
@@ -276,13 +255,14 @@ module proc (/*AUTOARG*/
    /**
     * MemWB Reg
     */
-   wire [15:0] memwb_mem_data_out, memwb_pcPlusTwo_out, memwb_imm_8_ext_out, 
+    wire [15:0] memwb_mem_data_out, memwb_pcPlusTwo_out, memwb_imm_8_ext_out, 
                memwb_alu_out, memwb_slbi_out, memwb_btr_out, memwb_cond_out;
+    wire [7:0]  memwb_WB_control_out;
    regMemWB MemWB(
       //reg control inputs
       .clk(clk),
       .rst(rst),
-      .en(1'b1),// stall?
+      .en(1'b1),
       //data inputs
       .mem_data_in(mem_data_out),
       .pcPlusTwo_in(exmem_pcPlusTwo_out),
@@ -308,9 +288,11 @@ module proc (/*AUTOARG*/
    /**
     * Write Back (WB)
     */
+   assign WB_Dst = memwb_WB_control_out[2:0];
+   assign WB_en = memwb_WB_control_out[6];
    writeback WB(
       // Outputs
-      .data(WriteBack_Data),
+      .data(WB_Data),
       // Inputs
       .DataSrcSel(memwb_WB_control_out[5:3]),
       .mem_data_out(memwb_mem_data_out),
@@ -322,6 +304,30 @@ module proc (/*AUTOARG*/
       .cond_out(memwb_cond_out),
       .constant(16'bxxxx_xxxx_xxxx_xxxx)// should never
    );
+
+
+   /** Hazard Detection */
+   hazard_detector hazy(
+   // output 
+   .stall(Stall),
+   //inputs
+   .ifid_Instr(ifid_instr_out),
+   .idex_Instr(idex_instr_out),
+   .idex_MemRead(idex_MEM_control_out[0]),
+   .idex_MemWr(idex_MEM_control_out[1])
+   );
    
+   /** Forwarding */
+   forwarding_unit fwd(
+      //output
+      .forwardA(forwardA),
+      .forwardB(forwardB),
+      //input
+      .idex_Instr(idex_instr_out),
+      .exmem_RegWriteEn(exmem_WB_control_out[6]),
+      .exmem_RegD(exmem_WB_control_out[2:0]),
+      .memwb_RegWriteEn(memwb_WB_control_out[6]),
+      .memwb_RegD(memwb_WB_control_out[2:0])
+   );
 endmodule // proc
 // DUMMY LINE FOR REV CONTROL :0:
