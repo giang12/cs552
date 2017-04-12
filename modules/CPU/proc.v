@@ -97,17 +97,17 @@ module proc (/*AUTOARG*/
     * ID/EX Reg
     */
    //remove Stall | Flush  and I will kill you
-   wire [31:0] control_signals_in = (Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
+//   wire [31:0] control_signals_in = (Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
    wire [15:0] idex_EX_control_out;
    wire [7:0]  idex_WB_control_out, idex_MEM_control_out;
-   assign Halt = control_signals_in[10]; //TODO: find better place to assign Halt
+   assign Halt = control_signals[10]; //TODO: find better place to assign Halt
 
    regIDEX IDEX(
       //reg control inputs
       .flush(Flush),
-      .en(1'b1), //always
+      .en(~Stall), //always
       .clk(clk),
       .rst(rst),
       //data inputs
@@ -120,9 +120,9 @@ module proc (/*AUTOARG*/
       .imm_8_ext_in(imm_8_ext),
       .imm_11_ext_in(imm_11_ext),
       //control inputs
-      .WB_control_in(control_signals_in[7:0]),
-      .MEM_control_in(control_signals_in[15:8]),
-      .EX_control_in(control_signals_in[31:16]),
+      .WB_control_in(control_signals[7:0]),
+      .MEM_control_in(control_signals[15:8]),
+      .EX_control_in(control_signals[31:16]),
       //data outputs
       .instr_out(idex_instr_out), 
       .pcCurrent_out(idex_pcCurrent_out), 
