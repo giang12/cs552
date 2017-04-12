@@ -44,7 +44,7 @@ module proc (/*AUTOARG*/
       //input
       .address(Next_Instr_Addr), 
       .pc_sel(Flush),
-      .en(~Stall & ~Halt),
+      .en(~Stall & ~Halt), //Stop incrementing PC
       .clk(clk), 
       .rst(rst)
    );

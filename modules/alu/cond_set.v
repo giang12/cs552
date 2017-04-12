@@ -1,3 +1,6 @@
+/**
+ * Extended Conditional Code Flags
+ */
 module cond_set(
 	EQ, NE, HS, LO, MI, PL, VS, VC, HI, LS, GE, LT, GT, LE, AL,
 	V, C, N, Z

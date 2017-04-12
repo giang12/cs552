@@ -1,3 +1,10 @@
+/**
+ * Standard ALU Conditional Code Flags
+ * N(egative)
+ * Z(ero)
+ * V(flow)
+ * C(carry)
+ */
 module alu_flags(
 	output N,
 	output Z,
