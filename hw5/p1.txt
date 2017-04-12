@@ -1,0 +1,16 @@
+Forwarding takes place for second and third instruction.
+
+For the second instruction (ldi r4, r3, 5), 
+	the r3 value from the ex/mem register forwared to input 1 of the alu.
+
+For the thrd instruction addi (r5, r4, 6), 
+    the r4 value is forwarded from the mem/wb stage to input 2 of alu. 
+
+
+Instructions: 
+lbi r3, 0
+ldi r4, r3, 5
+addi r5, r3, r4
+halt
+
+
