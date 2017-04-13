@@ -1,0 +1,13 @@
+// Write your answer to Problem 2 (b) and (c) here
+Part B: 
+
+Branch prediction is necesarry and helpful because it improves the performance of the processor
+Because r6 is set to 1, branch should not be taken. 
+Since the branch prediction is that branch does not happen the nop instruction after branch instruction runs without any stall i.e. when the branch instr. is in 
+the decode stage, the nop is in the fetch state.
+
+is we predict the branch is not taken, we do not have to wait for the writeback stage to complete/ or the alu operation to happen.
+
+Part C:
+
+we actually know whether the branch will be taken in the execute stage. So branch prediction can take more than 1 cycle in the case that there is misprediction. In that case, we flush the two instructions (in IF and ID stage).
