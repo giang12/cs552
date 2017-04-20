@@ -1,0 +1,15 @@
+mem_system_ref.v
+cache.v 
+memory.v 
+mem_system.v 
+memc.v 
+memv.v 
+memory2c.v 
+four_bank_mem.v 
+cache_fsm.v 
+register_1bit.v 
+final_memory.v 
+dff.v 
+mux2_1.v 
+not1.v 
+nand2.v
