@@ -174,36 +174,31 @@ module mem_system(/*AUTOARG*/
   assign m_data_in  = cache_dataout;
 
   //2ways 2wayssss
-  wire victim;
+  wire victim, c0_valid_out, c1_valid_out;
   register_1bit victimway(.readdata(victim), .clk(clk), .rst(rst), .writedata(~victim),
                          .write(cache_state == COMPARE_WRITE | cache_state == COMPARE_READ));
   
-
-  
-  wire c0_valid_out, c1_valid_out;
   register_1bit c0_v(.readdata(c0_valid_out), .clk(clk), .rst(rst), .writedata(c0_valid), .write(~cache_stall));
   register_1bit c1_v(.readdata(c1_valid_out), .clk(clk), .rst(rst), .writedata(c1_valid), .write(~cache_stall));
   
   wire victimSel;
-
-  assign victimSel =  (c_enable == 1 & c0_valid == 1 & c1_valid == 0 & cache_state ==IDLE) ? 1'b1 :
-                      (c_enable == 1 & c0_valid == 0 & c1_valid == 1 & cache_state ==IDLE) ? 1'b0 :
-                      (c_enable == 1 & c0_valid == 0 & c1_valid == 0 & cache_state ==IDLE) ? 1'b0 : 
-                      (c_enable == 1 & c0_valid_out == 1 & c1_valid_out == 1 & cache_state == IDLE) ? ~victim :
+  assign victimSel =  (c_enable & c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b1 :
+                      (c_enable & ~c0_valid & c1_valid & cache_state == IDLE) ? 1'b0 :
+                      (c_enable & ~c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b0 : 
+                      (c_enable & c0_valid & c1_valid & cache_state == IDLE) ? ~victim :
                        
-                      (c_enable == 1 & c0_valid_out == 1 & c1_valid_out == 0 & cache_state !=IDLE) ? 1'b1 :
-                      (c_enable == 1 & c0_valid_out == 0 & c1_valid_out == 1 & cache_state !=IDLE) ? 1'b0 :
-                      (c_enable == 1 & c0_valid_out == 0 & c1_valid_out == 0 & cache_state !=IDLE) ? 1'b0 :
-                      (c_enable == 1 & c0_valid_out == 1 & c1_valid_out == 1 & cache_state !=IDLE) ? victim : 1'b0;
+                      (c_enable & c0_valid_out & ~c1_valid_out & cache_state != IDLE) ? 1'b1 :
+                      (c_enable & ~c0_valid_out & c1_valid_out & cache_state != IDLE) ? 1'b0 :
+                      (c_enable & ~c0_valid_out & ~c1_valid_out & cache_state != IDLE) ? 1'b0 :
+                      (c_enable & c0_valid_out & c1_valid_out & cache_state != IDLE) ? victim : 1'b0;
   
   assign c0_en = (cache_state == IDLE | cache_state == COMPARE_WRITE | cache_state == COMPARE_READ | ~victimSel);
   assign c1_en = (cache_state == IDLE | cache_state == COMPARE_WRITE | cache_state == COMPARE_READ | victimSel);                               
-  
 
   assign c0ValidHit = c0_hit & c0_valid;
   assign c1ValidHit = c1_hit & c1_valid;
-  assign data_sel = (c0ValidHit | c1ValidHit) ? c1ValidHit : victimSel;
-    
+  assign data_sel = c0ValidHit ? 0 :
+                    c1ValidHit ? 1 : victimSel;    
   /**
    * Cache output
    */

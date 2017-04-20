@@ -97,15 +97,15 @@ always @(*) begin
             c_en = Rd | Wr;
         end
         COMPARE_READ: begin
-            nstate = ((hit & valid) == FALSE & dirty) ? WB_0 : //miss & dirty -> wb to mem
-                     ((hit & valid) == FALSE & ~dirty) ? ALLOC0 : IDLE; //miss & not dirty -> load from mem OR hit&value->done idle
+            nstate = (~(hit & valid)  & dirty) ? WB_0 : //miss & dirty -> wb to mem
+                     (~(hit & valid)  & ~dirty) ? ALLOC0 : IDLE; //miss & not dirty -> load from mem OR hit&value->done idle
 
             c_comp = TRUTH;
             c_write = FALSE;
         end
         COMPARE_WRITE: begin
-            nstate = ((hit & valid) == FALSE & dirty) ? WB_0 : //miss & dirty -> wb to mem
-                     ((hit & valid) == FALSE & ~dirty) ? ALLOC0 : IDLE; //miss & not dirty -> load from mem OR hit&value->done idle
+            nstate = (~(hit & valid) & dirty) ? WB_0 : //miss & dirty -> wb to mem
+                     (~(hit & valid) & ~dirty) ? ALLOC0 : IDLE; //miss & not dirty -> load from mem OR hit&value->done idle
 
             c_comp = TRUTH;
             c_write = TRUTH;
