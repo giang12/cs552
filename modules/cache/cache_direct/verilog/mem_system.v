@@ -81,9 +81,11 @@ module mem_system(/*AUTOARG*/
 
    wire cache_stall, canHit;
    wire [1:0] m_offset, c_offset;
+   wire [3:0] cache_state;
    // your code here
    cache_fsm cache_fsm0(
     //output
+    .state(cache_state),
     .stall(cache_stall),
     .canHit(canHit),
     //to cache

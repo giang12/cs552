@@ -1,6 +1,7 @@
 module cache_fsm(
     //output
     state,
+    err,
     stall,
     canHit,
     //to cache
@@ -26,7 +27,7 @@ module cache_fsm(
     m_stall
 );
     output [3:0] state;
-    output reg stall, canHit;
+    output reg err, stall, canHit;
     output reg c_en, c_comp, c_write, c_valid_in, m_wr, m_rd;
     output reg [1:0] c_offset, m_offset;
 
@@ -38,24 +39,23 @@ module cache_fsm(
  */
    localparam IDLE          = 4'b0000; // 0
    localparam COMPARE_READ  = 4'b0001; // 1
+   localparam COMPARE_WRITE = 4'b0010; // 2
 
-   localparam STALL0 = 4'b0010; // 2
-   localparam STALL1 = 4'b0011; // 3
-   localparam STALL2 = 4'b0100; // 4
-   localparam STALL3 = 4'b0101; // 5
-   
-   localparam COMPARE_WRITE = 4'b0110; // 6
-   localparam ACCESS_READ   = 4'b0111; // 7
+   localparam WB_0   = 4'b0011; // 3
+   localparam WB_1   = 4'b0100; // 4
+   localparam WB_2   = 4'b0101; // 5
+   localparam WB_3   = 4'b0110; // 6
 
-   localparam WB_0   = 4'b1000; // 8 change line 89ish if you update this
-   localparam WB_1   = 4'b1001; // 9
-   localparam WB_2   = 4'b1010; // 10/a
-   localparam WB_3   = 4'b1011; // 11/b
-
-   localparam ALLOC0     = 4'b1100; // 12/c
-   localparam ALLOC1     = 4'b1101; // 13/d
-   localparam ALLOC2     = 4'b1110; // 14/e
-   localparam ALLOC3     = 4'b1111; // 15/f
+   localparam ALLOC0     = 4'b0111; // 7 read mem0
+   localparam ALLOC1     = 4'b1000; // 8 read mem1
+   localparam ALLOC2     = 4'b1001; // 9 read mem2 & install cacheblock0
+   localparam ALLOC3     = 4'b1010; // 10/a read mem3 & install cacheblock1
+   localparam ALLOC4     = 4'b1011; // 11/b install cacheblock2
+  
+   localparam COMMIT = 4'b1100; // 12/c install cacheblock3, last block and commit(set valid_in == true) cache line
+   localparam RD_RETRY = 4'b1101; // 13/d //rereading on a miss after install new cache line 
+   localparam WR_RETRY = 4'b1110; // 14/e //rereading on a miss after install new cache line
+   localparam ERROR   = 4'b1111; // 15/f //shit hit the fan
 
    localparam TRUTH = 1'b1;
    localparam FALSE = 1'b0;
@@ -71,11 +71,11 @@ module cache_fsm(
  * FSM Logics
  */
 always @(*) begin
+    err = FALSE;
     stall = (cstate != IDLE);
     canHit = (cstate == COMPARE_READ | cstate == COMPARE_WRITE);
     //cache
     c_en = TRUTH;
-
     c_offset = 2'bxx; 
     c_comp = FALSE;
     c_write = FALSE;
@@ -84,8 +84,12 @@ always @(*) begin
     m_offset = 2'bxx;
     m_wr = FALSE;
     m_rd = FALSE;
-
     case(cstate)
+        ERROR: begin
+            nstate = IDLE;
+            c_en = FALSE;
+            err = TRUTH;
+        end
         IDLE: begin
             nstate = Rd ? COMPARE_READ  :
                      Wr ? COMPARE_WRITE : IDLE;
@@ -93,22 +97,20 @@ always @(*) begin
             c_en = Rd | Wr;
         end
         COMPARE_READ: begin
-            nstate = ((hit & valid) == FALSE & dirty) ? WB_0 :
-                     ((hit & valid) == FALSE & ~dirty) ? ALLOC0     : IDLE;
+            nstate = ((hit & valid) == FALSE & dirty) ? WB_0 : //miss & dirty -> wb to mem
+                     ((hit & valid) == FALSE & ~dirty) ? ALLOC0 : IDLE; //miss & not dirty -> load from mem OR hit&value->done idle
 
             c_comp = TRUTH;
             c_write = FALSE;
         end
         COMPARE_WRITE: begin
             nstate = ((hit & valid) == FALSE & dirty) ? WB_0 : //miss & dirty -> wb to mem
-                     ((hit & valid) == FALSE & ~dirty) ? ALLOC0     : IDLE; //miss & not dirty -> load from mem or hit&value->done idle
+                     ((hit & valid) == FALSE & ~dirty) ? ALLOC0 : IDLE; //miss & not dirty -> load from mem OR hit&value->done idle
 
             c_comp = TRUTH;
             c_write = TRUTH;
         end
-        ACCESS_READ: begin //eviction yo
-            
-        end
+
         WB_0: begin
             nstate = m_stall ? WB_0 : WB_1;
             c_comp = FALSE;
@@ -150,7 +152,7 @@ always @(*) begin
             
             c_comp = FALSE;
             c_write = TRUTH;
-            c_en = FALSE;//notenote
+            //c_en = FALSE;//notenote
 
             m_wr = FALSE;
             m_rd = TRUTH;
@@ -163,7 +165,7 @@ always @(*) begin
             
             c_comp = FALSE;
             c_write = TRUTH;
-            c_en = FALSE;//notenote
+            //c_en = FALSE;//notenote
 
             m_wr = FALSE;
             m_rd = TRUTH;
@@ -184,7 +186,7 @@ always @(*) begin
             m_offset = 2'b10;
         end
         ALLOC3: begin
-            nstate = m_stall ? ALLOC3 : STALL0;
+            nstate = m_stall ? ALLOC3 : ALLOC4;
             
             c_comp = FALSE;
             c_write = TRUTH;
@@ -195,8 +197,8 @@ always @(*) begin
             c_offset = 2'b01;
             m_offset = 2'b11;
         end
-        STALL0: begin
-            nstate = STALL1;
+        ALLOC4: begin
+            nstate = COMMIT;
 
             c_comp = FALSE;
             c_write = TRUTH;
@@ -207,9 +209,9 @@ always @(*) begin
             c_offset = 2'b10;
             m_offset = 2'bxx;
         end
-        STALL1: begin
-            nstate = Rd ? STALL2  :
-                     Wr ? STALL3 : STALL1;
+        COMMIT: begin
+            nstate = Rd ? RD_RETRY  :
+                     Wr ? WR_RETRY  : ERROR;
 
             c_comp = FALSE;
             c_write = TRUTH;
@@ -221,7 +223,7 @@ always @(*) begin
             c_offset = 2'b11;
             m_offset = 2'bxx;        
         end
-        STALL2: begin //RD miss resolver
+        RD_RETRY: begin //RD miss resolver
             nstate = IDLE;
             
             c_comp = TRUTH;
@@ -231,7 +233,7 @@ always @(*) begin
             m_rd = FALSE;
 
         end
-        STALL3: begin //WR miss resolver
+        WR_RETRY: begin //WR miss resolver
             nstate = IDLE;
 
             c_comp = TRUTH;
