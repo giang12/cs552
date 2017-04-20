@@ -79,13 +79,36 @@ module mem_system(/*AUTOARG*/
                      .wr                (m_wr),
                      .rd                (m_rd));
 
-   wire cache_stall, canHit;
+   wire cache_stall, canHit, deadlyErr;
    wire [1:0] m_offset, c_offset;
    wire [3:0] cache_state;
    // your code here
+     /**
+   * States
+   */
+   localparam IDLE          = 4'b0000; // 0
+   localparam COMPARE_READ  = 4'b0001; // 1
+   localparam COMPARE_WRITE = 4'b0010; // 2
+
+   localparam WB_0   = 4'b0011; // 3
+   localparam WB_1   = 4'b0100; // 4
+   localparam WB_2   = 4'b0101; // 5
+   localparam WB_3   = 4'b0110; // 6
+
+   localparam ALLOC0     = 4'b0111; // 7 read mem0
+   localparam ALLOC1     = 4'b1000; // 8 read mem1
+   localparam ALLOC2     = 4'b1001; // 9 read mem2 & install cacheblock0
+   localparam ALLOC3     = 4'b1010; // 10/a read mem3 & install cacheblock1
+   localparam ALLOC4     = 4'b1011; // 11/b install cacheblock2
+  
+   localparam COMMIT = 4'b1100; // 12/c install cacheblock3, last block and commit(set valid_in == true) cache line
+   localparam RD_RETRY = 4'b1101; // 13/d //rereading on a miss after install new cache line 
+   localparam WR_RETRY = 4'b1110; // 14/e //rereading on a miss after install new cache line
+   localparam ERROR   = 4'b1111; // 15/f //shit hit the fan
    cache_fsm cache_fsm0(
     //output
     .state(cache_state),
+    .err(deadlyErr),
     .stall(cache_stall),
     .canHit(canHit),
     //to cache
@@ -123,13 +146,17 @@ module mem_system(/*AUTOARG*/
     assign c0_offset = c_addr[2:0];
     assign c0_data_in = comp ? DataIn : m_data_out;
     
+  /**
+   * Outputs assignment
+   */
+  assign DataOut = c0_data_out;
+  assign CacheHit = c0_hit & c0_valid & canHit; 
+  assign Done = (cache_state == COMPARE_READ | cache_state == COMPARE_WRITE) ? (c0_hit & c0_valid) : //hit right away
+                (cache_state == WR_RETRY | cache_state == RD_RETRY); //hit on retry after installing cache line
+  assign Stall = cache_stall; 
+  assign err = c0_err | m_err;
+   
 
-    assign DataOut = c0_data_out;
-    assign CacheHit = c0_hit & c0_valid & canHit; 
-    assign Done = c0_hit & c0_valid; //WRONGGGG Giang said so
-    assign Stall = cache_stall; 
-
-    assign err = c0_err | m_err;
 
 endmodule // mem_system
 

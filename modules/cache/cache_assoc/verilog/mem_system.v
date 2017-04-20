@@ -127,13 +127,14 @@ module mem_system(/*AUTOARG*/
                      .rd                (m_rd));
    
   // your code here
-  wire cache_stall, canHit;
+  wire cache_stall, canHit, deadlyErr;
   wire [1:0] m_offset_out, c_offset_out;
   wire [3:0] cache_state;
   // your code here
   cache_fsm cache_fsm0(
     //output
     .state(cache_state),
+    .err(deadlyErr),
     .stall(cache_stall),
     .canHit(canHit),
     //to cache
