@@ -130,19 +130,19 @@ module proc_hier_pbench();
    assign PC = DUT.p0.fetch0.pcCurrent;
    assign Inst = DUT.p0.fetch0.instr;
    
-   assign RegWrite = DUT.p0.decode0.regFile0.write;
+   assign RegWrite = DUT.p0.WB_en;
    // Is register file being written to, one bit signal (1 means yes, 0 means no)
    //    
-   assign WriteRegister = DUT.p0.decode0.regFile0.writeregsel;
+   assign WriteRegister = DUT.p0.WB_Dst;
    // The name of the register being written to. (3 bit signal)
    
-   assign WriteData = DUT.p0.decode0.regFile0.writedata;
+   assign WriteData = DUT.p0.WB_Data;
    // Data being written to the register. (16 bits)
    
-   assign MemRead =  (DUT.p0.memory0.en & (~DUT.p0.memory0.write));
+   assign MemRead =  DUT.p0.memory0.en & ~DUT.p0.memory0.write & DUT.p0.memory0.DataMem.Done;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
-   assign MemWrite = (DUT.p0.memory0.en & DUT.p0.memory0.write);
+   assign MemWrite = DUT.p0.memory0.en & DUT.p0.memory0.write & DUT.p0.memory0.DataMem.Done;
    // Is memory being written to (1 bit signal)
    
    assign MemAddress = DUT.p0.memory0.addr;
@@ -155,20 +155,20 @@ module proc_hier_pbench();
    // Data read from memory for memory reads (16 bits)
 
    // new added 05/03
-   // assign ICacheReq = DUT.p0.readData;
-   // // Signal indicating a valid instruction read request to cache
-   // // Above assignment is a dummy example
+   assign ICacheReq = DUT.p0.fetch0.InstrMEM.Done;
+   // Signal indicating a valid instruction read request to cache
+   // Above assignment is a dummy example
    
-   // assign ICacheHit = DUT.p0.readData;
-   // // Signal indicating a valid instruction cache hit
-   // // Above assignment is a dummy example
+   assign ICacheHit = DUT.p0.fetch0.InstrMEM.CacheHit;
+   // Signal indicating a valid instruction cache hit
+   // Above assignment is a dummy example
 
-   // assign DCacheReq = DUT.p0.readData;
-   // // Signal indicating a valid instruction data read or write request to cache
-   // // Above assignment is a dummy example
-   // //    
-   // assign DCacheHit = DUT.p0.readData;
-   // // Signal indicating a valid data cache hit
+   assign DCacheReq = DUT.p0.memory0.DataMem.Done;
+   // Signal indicating a valid instruction data read or write request to cache
+   // Above assignment is a dummy example
+   //    
+   assign DCacheHit = DUT.p0.memory0.DataMem.CacheHit;
+   // Signal indicating a valid data cache hit
    // Above assignment is a dummy example
    
    assign Halt = DUT.p0.memory0.halt;
