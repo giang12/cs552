@@ -17,13 +17,14 @@ module proc (/*AUTOARG*/
 
    // OR all the err ouputs for every sub-module and assign it as this
    // err output
-   wire decode_err;
+   wire decode_err, mem_err;
    assign err = decode_err;
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
    //Feedback wires
-   wire Rti, Exception, Halt, Flush, Stall;
+   wire Rti, Exception, Halt, Flush, 
+        Stall, Hazard_Stall, Mem_Stall;
    // for fetch
    wire [15:0] Next_Instr_Addr; //next instr address to execute, either PC+2 or JUMP/branch
    // for decode
@@ -44,7 +45,7 @@ module proc (/*AUTOARG*/
       //input
       .address(Next_Instr_Addr), 
       .pc_sel(Flush),
-      .en(~Stall & ~Halt), //Stop incrementing PC
+      .en(~Hazard_Stall & ~Mem_Stall & ~Halt), //Stop incrementing PC
       .clk(clk), 
       .rst(rst)
    );
@@ -55,7 +56,7 @@ module proc (/*AUTOARG*/
    regIFID IFID(
    //control inputs
    .flush(Flush), //flush from exec branch predictor
-   .en(~Stall), //~stallfrom hazard detector
+   .en(~Hazard_Stall & ~Mem_Stall), //~stallfrom hazard detector
    .clk(clk), 
    .rst(rst),
    //data inputs
@@ -97,7 +98,7 @@ module proc (/*AUTOARG*/
     * ID/EX Reg
     */
    //remove Stall | Flush  and I will kill you
-   wire [31:0] control_signals_in = (Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
+   wire [31:0] control_signals_in = (Mem_Stall | Hazard_Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
    wire [15:0] idex_EX_control_out;
@@ -107,7 +108,7 @@ module proc (/*AUTOARG*/
    regIDEX IDEX(
       //reg control inputs
       .flush(Flush),
-      .en(1'b1), //always
+      .en(~Mem_Stall), //always
       .clk(clk),
       .rst(rst),
       //data inputs
@@ -195,7 +196,7 @@ module proc (/*AUTOARG*/
       //reg control inputs
       .clk(clk),
       .rst(rst),
-      .en(1'b1),// stall?
+      .en(~Mem_Stall),// stall?
       //data inputs
       .write_data_in(data_to_mem),
       .pcPlusTwo_in(idex_pcPlusTwo_out),
@@ -241,7 +242,9 @@ module proc (/*AUTOARG*/
    wire [15:0] mem_data_out;
    memory memory0(  
       //output
-      .readData(mem_data_out), 
+      .readData(mem_data_out),
+      .stall(Mem_Stall),
+      .err(mem_err),
       //input
       .addr(exmem_alu_out), 
       .writeData(exmem_write_data_out), 
@@ -272,7 +275,7 @@ module proc (/*AUTOARG*/
       .btr_out_in(exmem_btr_out),
       .cond_out_in(exmem_cond_out),
       //control inputs
-      .WB_control_in(exmem_WB_control_out),
+      .WB_control_in(Mem_Stall == 1'b0 ? exmem_WB_control_out : 8'b00000000),
 
       //data outputs
       .mem_data_out(memwb_mem_data_out),
@@ -309,7 +312,7 @@ module proc (/*AUTOARG*/
    /** Hazard Detection */
    hazard_detector hazy(
    // output 
-   .stall(Stall),
+   .stall(Hazard_Stall),
    //inputs
    .ifid_Instr(ifid_instr_out),
    .idex_Instr(idex_instr_out),
