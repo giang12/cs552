@@ -8,7 +8,7 @@ module memory(readData, stall, err, addr, writeData, en, write, halt, clk, rst);
     wire Done, CacheHit;
 
     // data mem
-    stallmem DataMem(
+    mem_system DataMem(
        // Outputs
        .DataOut(readData), .Done(Done), .Stall(stall), .CacheHit(CacheHit), .err(err), 
        // Inputs
