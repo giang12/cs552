@@ -12,9 +12,9 @@ module memory(readData, stall, err, addr, writeData, en, write, halt, clk, rst);
        // Outputs
        .DataOut(readData), .Done(Done), .Stall(stall), .CacheHit(CacheHit), .err(err), 
        // Inputs
-       .Addr(addr), .DataIn(writeData), .Rd(en & !write), .Wr(en & write), .createdump(halt), .clk(clk), .rst(rst)
+       .Addr(addr), .DataIn(writeData), .Rd(en & ~write), .Wr(en & write), .createdump(halt), .clk(clk), .rst(rst)
     );
-    
+
     // assign Done = 1'b1;
     // assign CacheHit = 1'b1;
     // assign stall = 1'b0;
