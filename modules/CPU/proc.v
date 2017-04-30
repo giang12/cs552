@@ -18,7 +18,7 @@ module proc (/*AUTOARG*/
    // OR all the err ouputs for every sub-module and assign it as this
    // err output
    wire decode_err, mem_err;
-   assign err = decode_err | mem_err;
+   assign err = decode_err;// | mem_err;
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
@@ -33,7 +33,7 @@ module proc (/*AUTOARG*/
    wire [1:0] forwardA, forwardB;
    wire [15:0] Prior_ALU_Res;
 
-   assign Stall = Hazard_Stall | Mem_Stall;
+   assign Stall = Hazard_Stall;// | Mem_Stall;
    /**
     * Instruction Fetch (IF)
     */
@@ -109,7 +109,7 @@ module proc (/*AUTOARG*/
    regIDEX IDEX(
       //reg control inputs
       .flush(Flush),
-      .en(~Mem_Stall),
+      .en(1'b1),//Mem_Stall
       .clk(clk),
       .rst(rst),
       //data inputs
@@ -197,7 +197,7 @@ module proc (/*AUTOARG*/
       //reg control inputs
       .clk(clk),
       .rst(rst),
-      .en(~Mem_Stall),// stall?
+      .en(1'b1),// Mem_Stall?
       //data inputs
       .write_data_in(data_to_mem),
       .pcPlusTwo_in(idex_pcPlusTwo_out),
@@ -276,7 +276,7 @@ module proc (/*AUTOARG*/
       .btr_out_in(exmem_btr_out),
       .cond_out_in(exmem_cond_out),
       //control inputs
-      .WB_control_in(Mem_Stall ? 8'b0 : exmem_WB_control_out),
+      .WB_control_in(exmem_WB_control_out),
 
       //data outputs
       .mem_data_out(memwb_mem_data_out),

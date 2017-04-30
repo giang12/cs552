@@ -22,30 +22,33 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 		//input
 		.instrLen(4'h2), //pc + 2 bytes
 		.set(next_pc),
-		.en(en & ~Stall | pc_sel),
+		.en(en & ~Stall),
 		.clk(clk),
 		.rst(rst)
 	);
-	
-	mem_system InstrMEM(
-	   // Outputs
-	   .DataOut(mem_data_out), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
-	   // Inputs
-	   .Addr(pcCurrent), .DataIn(16'b0), .Rd(1'b1), .Wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst)
-	);
-
-	assign instr =	err ? 16'b0 : //halt
-					Stall ? 16'b0000100000000000 : //nop
-					mem_data_out; 
-	// //instr mem	
-	// memory2c InstrMEM(
-	// 	.data_out(instr),
-	// 	.data_in(16'b0),
-	// 	.addr(pcCurrent), 
-	// 	.enable(1'b1), 
-	// 	.wr(1'b0), 
-	// 	.createdump(1'b0), //on halt ?
-	// 	.clk(clk), 
-	// 	.rst(rst)
+	assign Done = 1'b1;
+    assign Stall = 1'b0;
+    assign CacheHit = 1'b0;
+    assign err = 1'b0;
+	// mem_system InstrMEM(
+	//    // Outputs
+	//    .DataOut(mem_data_out), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
+	//    // Inputs
+	//    .Addr(pcCurrent), .DataIn(16'b0), .Rd(1'b1), .Wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst)
 	// );
+
+	// assign instr =	err ? 16'b0 : //halt
+	// 				Stall ? 16'b0000100000000000 : //nop
+	// 				mem_data_out; 
+	// //instr mem	
+	memory2c InstrMEM(
+		.data_out(instr),
+		.data_in(16'b0),
+		.addr(pcCurrent), 
+		.enable(1'b1), 
+		.wr(1'b0), 
+		.createdump(1'b0), //on halt ?
+		.clk(clk), 
+		.rst(rst)
+	);
 endmodule
