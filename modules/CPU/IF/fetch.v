@@ -25,7 +25,7 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 		//input
 		.instrLen(4'h2), //pc + 2 bytes
 		.set(next_pc),
-		.en(en & Done | pc_sel),
+		.en(en & Done | pc_sel), //increment PC when done reading valid instr OR force branch(reading new instr)
 		.clk(clk),
 		.rst(rst)
 	);
