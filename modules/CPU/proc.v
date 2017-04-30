@@ -17,14 +17,13 @@ module proc (/*AUTOARG*/
 
    // OR all the err ouputs for every sub-module and assign it as this
    // err output
-   wire decode_err, mem_err;
-   assign err = decode_err;// | mem_err;
+   wire decode_err;
+   assign err = decode_err;
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
    //Feedback wires
-   wire Rti, Exception, Halt, Flush, 
-        Stall, Hazard_Stall, Mem_Stall;
+   wire Rti, Exception, Halt, Flush, Stall;
    // for fetch
    wire [15:0] Next_Instr_Addr; //next instr address to execute, either PC+2 or JUMP/branch
    // for decode
@@ -33,7 +32,6 @@ module proc (/*AUTOARG*/
    wire [1:0] forwardA, forwardB;
    wire [15:0] Prior_ALU_Res;
 
-   assign Stall = Hazard_Stall;// | Mem_Stall;
    /**
     * Instruction Fetch (IF)
     */
@@ -99,7 +97,7 @@ module proc (/*AUTOARG*/
     * ID/EX Reg
     */
    //remove Stall | Flush  and I will kill you
-   wire [31:0] control_signals_in = (Hazard_Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
+   wire [31:0] control_signals_in = (Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
    wire [15:0] idex_EX_control_out;
@@ -109,7 +107,7 @@ module proc (/*AUTOARG*/
    regIDEX IDEX(
       //reg control inputs
       .flush(Flush),
-      .en(1'b1),//Mem_Stall
+      .en(1'b1), //always
       .clk(clk),
       .rst(rst),
       //data inputs
@@ -197,7 +195,7 @@ module proc (/*AUTOARG*/
       //reg control inputs
       .clk(clk),
       .rst(rst),
-      .en(1'b1),// Mem_Stall?
+      .en(1'b1),// stall?
       //data inputs
       .write_data_in(data_to_mem),
       .pcPlusTwo_in(idex_pcPlusTwo_out),
@@ -243,9 +241,7 @@ module proc (/*AUTOARG*/
    wire [15:0] mem_data_out;
    memory memory0(  
       //output
-      .readData(mem_data_out),
-      .stall(Mem_Stall), 
-      .err(mem_err),
+      .readData(mem_data_out), 
       //input
       .addr(exmem_alu_out), 
       .writeData(exmem_write_data_out), 
@@ -313,7 +309,7 @@ module proc (/*AUTOARG*/
    /** Hazard Detection */
    hazard_detector hazy(
    // output 
-   .stall(Hazard_Stall),
+   .stall(Stall),
    //inputs
    .ifid_Instr(ifid_instr_out),
    .idex_Instr(idex_instr_out),

@@ -4,12 +4,10 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 	input [15:0] address;
 
 	output [15:0] instr, pcCurrent, pcPlusTwo;
-    wire [15:0] next_pc, mem_data_out;
-
-    wire Done, Stall, CacheHit, err;
+    wire [15:0] next_pc;
 
     mux2_1_16bit pc_next_mux(	
-    	.InA(pcPlusTwo),
+    	.InA(pcPlusTwo), 
 		.InB(address), 
 		.S(pc_sel), 
 		.Out(next_pc)
@@ -22,26 +20,13 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 		//input
 		.instrLen(4'h2), //pc + 2 bytes
 		.set(next_pc),
-		.en(en & ~Stall),
+		.en(en),
 		.clk(clk),
 		.rst(rst)
 	);
-	assign Done = 1'b1;
-    assign Stall = 1'b0;
-    assign CacheHit = 1'b0;
-    assign err = 1'b0;
-	// mem_system InstrMEM(
-	//    // Outputs
-	//    .DataOut(mem_data_out), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
-	//    // Inputs
-	//    .Addr(pcCurrent), .DataIn(16'b0), .Rd(1'b1), .Wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst)
-	// );
 
-	// assign instr =	err ? 16'b0 : //halt
-	// 				Stall ? 16'b0000100000000000 : //nop
-	// 				mem_data_out; 
-	// //instr mem	
-	memory2c InstrMEM(
+	//instr mem	
+	memory2c InstrMEM(	
 		.data_out(instr),
 		.data_in(16'b0),
 		.addr(pcCurrent), 
@@ -51,4 +36,8 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 		.clk(clk), 
 		.rst(rst)
 	);
+
+	
+
+
 endmodule
