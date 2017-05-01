@@ -174,14 +174,13 @@ module mem_system(/*AUTOARG*/
   assign m_data_in  = cache_dataout;
 
   //2ways 2wayssss
-  wire victim, c0_valid_out, c1_valid_out;
+  wire victim, victimSel, c0_valid_out, c1_valid_out;
   register_1bit victimway(.readdata(victim), .clk(clk), .rst(rst), .writedata(~victim),
                          .write(cache_state == COMPARE_WRITE | cache_state == COMPARE_READ));
   
   register_1bit c0_v(.readdata(c0_valid_out), .clk(clk), .rst(rst), .writedata(c0_valid), .write(~cache_stall));
   register_1bit c1_v(.readdata(c1_valid_out), .clk(clk), .rst(rst), .writedata(c1_valid), .write(~cache_stall));
   
-  wire victimSel;
   assign victimSel =  (c_enable & c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b1 :
                       (c_enable & ~c0_valid & c1_valid & cache_state == IDLE) ? 1'b0 :
                       (c_enable & ~c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b0 : 
@@ -195,24 +194,17 @@ module mem_system(/*AUTOARG*/
   assign c0_en = (cache_state == IDLE | cache_state == COMPARE_WRITE | cache_state == COMPARE_READ | ~victimSel);
   assign c1_en = (cache_state == IDLE | cache_state == COMPARE_WRITE | cache_state == COMPARE_READ | victimSel);                               
 
-  assign c0ValidHit = c0_hit & c0_valid;
-  assign c1ValidHit = c1_hit & c1_valid;
-  assign data_sel = c0ValidHit ? 0 :
-                    c1ValidHit ? 1 : victimSel;    
+  assign data_sel = (c0_hit & c0_valid) ? 0 :
+                    (c1_hit & c1_valid) ? 1 : victimSel;    
   /**
    * Cache output
    */
-   //these signals are only meaningfull when the cache is not busy/stalling from writing back to mem or installing a cache line
-  wire overall_hit_out, overall_valid_out, overall_dirty_out;
-  register_1bit all_h(.readdata(cache_hit), .clk(clk), .rst(rst), .writedata(data_sel ? c1_hit : c0_hit), .write(~cache_stall));
-  register_1bit all_v(.readdata(cache_valid), .clk(clk), .rst(rst), .writedata(data_sel ? c1_valid : c0_valid), .write(~cache_stall));
-  register_1bit all_d(.readdata(cache_dirty), .clk(clk), .rst(rst), .writedata(data_sel ? c1_dirty : c0_dirty), .write(~cache_stall));
- 
   assign cache_dataout = data_sel ? c1_data_out : c0_data_out;
   assign cache_tagout = data_sel ? c1_tag_out : c0_tag_out;
-  assign cache_hit = overall_hit_out;
-  assign cache_valid = overall_valid_out;
-  assign cache_dirty = overall_dirty_out;
+  assign cache_hit = data_sel ? c1_hit : c0_hit;
+  assign cache_valid = data_sel ? c1_valid : c0_valid;
+  assign cache_dirty = data_sel ? c1_dirty : c0_dirty;
+  assign cache_err = data_sel ? c1_err : c0_err;
 
   /**
    * Outputs assignment
@@ -222,12 +214,7 @@ module mem_system(/*AUTOARG*/
   assign Done = (cache_state == COMPARE_READ | cache_state == COMPARE_WRITE) ? (cache_hit & cache_valid) : //hit right away
                 (cache_state == WR_RETRY | cache_state == RD_RETRY); //hit on retry after installing cache line
   assign Stall = (Wr | Rd) & ~Done; 
-  assign cache_err = c0_err | c1_err;
-  assign err = cache_err | m_err;
+  assign err =  (cache_err | m_err) & Done;
    
 endmodule // mem_system
-
-   
-
-
 // DUMMY LINE FOR REV CONTROL :9:
