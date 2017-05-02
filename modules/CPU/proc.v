@@ -18,7 +18,7 @@ module proc (/*AUTOARG*/
    // OR all the err ouputs for every sub-module and assign it as this
    // err output
    wire decode_err, mem_err;
-   assign err = decode_err | mem_err;
+   assign err = decode_err;// | mem_err;
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
@@ -99,7 +99,7 @@ module proc (/*AUTOARG*/
     * ID/EX Reg
     */
    //remove Stall | Flush  and I will kill you
-   wire [31:0] control_signals_in = (Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
+   wire [31:0] control_signals_in = (Hazard_Stall | Flush) ? 32'b0000_0000_0000_0000_0000_0000_0000_0000 : control_signals;
    wire [15:0] idex_instr_out, idex_pcCurrent_out, idex_pcPlusTwo_out;
    wire [15:0] idex_data1_out, idex_data2_out, idex_imm_5_ext_out, idex_imm_8_ext_out, idex_imm_11_ext_out;
    wire [15:0] idex_EX_control_out;

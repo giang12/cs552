@@ -30,12 +30,17 @@ module forwarding_unit(
 assign forwardA = (exmem_RegWriteEn & (exmem_RegD == idex_Instr[10:8])) ? 2'b10 :
 				  (memwb_RegWriteEn & (memwb_RegD == idex_Instr[10:8])) ? 2'b01 : 2'b00;
 
-
-
 assign forwardB = (  exmem_RegWriteEn & (exmem_RegD == idex_Instr[7:5])) ? 2'b10 :
 				  (  memwb_RegWriteEn & (memwb_RegD == idex_Instr[7:5])) ? 2'b01 : 2'b00;
 
 
+// assign forwardA = (exmem_RegWriteEn & (exmem_RegD != 0) & (exmem_RegD == idex_Instr[10:8])) ? 2'b10 :
+// 				  (memwb_RegWriteEn & (memwb_RegD != 0) & 
+// 				  (exmem_RegD != idex_Instr[10:8]) & (memwb_RegD == idex_Instr[10:8])) ? 2'b01 : 2'b00;
+
+// assign forwardB = (exmem_RegWriteEn & (exmem_RegD != 0) & (exmem_RegD == idex_Instr[7:5])) ? 2'b10 :
+// 				  (memwb_RegWriteEn & (memwb_RegD != 0) & 
+// 				  (exmem_RegD != idex_Instr[7:5]) & (memwb_RegD == idex_Instr[7:5])) ? 2'b01 : 2'b00;
 
 
 endmodule

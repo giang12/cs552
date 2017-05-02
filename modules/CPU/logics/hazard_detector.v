@@ -9,9 +9,9 @@ module hazard_detector(
 );	
 
 
-	assign stall = idex_MemRead & ~idex_MemWr & (
-													(idex_Instr[7:5] == ifid_Instr[10:8]) | 
-													(idex_Instr[7:5] == ifid_Instr[7:5])
-												) ? 1'b1: 1'b0;
+	assign stall = idex_MemRead  & (
+									(idex_Instr[7:5] == ifid_Instr[10:8]) | 
+									(idex_Instr[7:5] == ifid_Instr[7:5])
+								) ? 1'b1: 1'b0;
 endmodule
 

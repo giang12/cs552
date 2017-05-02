@@ -8,7 +8,7 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 
     wire Done, Stall, CacheHit, err;
 
-	assign instr =	Done ? mem_data_out :
+	assign instr =	~Stall ? mem_data_out :
 					err ? 16'b0 : 16'b0000100000000000;
 
     mux2_1_16bit pc_next_mux(	
@@ -25,12 +25,12 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 		//input
 		.instrLen(4'h2), //pc + 2 bytes
 		.set(next_pc),
-		.en(en & Done | pc_sel), //increment PC when done reading valid instr OR force branch(reading new instr)
+		.en(en & (~Stall | pc_sel)), //increment PC when done reading valid instr OR force branch(reading new instr)
 		.clk(clk),
 		.rst(rst)
 	);
 	
-	mem_system InstrMEM(
+	stallmem InstrMEM(
 	   // Outputs
 	   .DataOut(mem_data_out), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
 	   // Inputs
