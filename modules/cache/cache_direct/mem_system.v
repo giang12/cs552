@@ -149,13 +149,18 @@ module mem_system(/*AUTOARG*/
   /**
    * Outputs assignment
    */
-  assign DataOut = c0_data_out;
-  assign CacheHit = c0_hit & c0_valid & canHit; 
+
   assign Done = (cache_state == COMPARE_READ | cache_state == COMPARE_WRITE) ? (c0_hit & c0_valid) : //hit right away
                 (cache_state == WR_RETRY | cache_state == RD_RETRY); //hit on retry after installing cache line
-  assign Stall = (Wr | Rd) & ~Done; 
+  
+  assign Stall = cache_stall; 
+  
   assign err =  (c0_err | m_err) & Done;
-   
+  
+  assign DataOut = c0_data_out;
+  
+  assign CacheHit = c0_hit & c0_valid & canHit; 
+
 
 
 endmodule // mem_system

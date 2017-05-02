@@ -18,7 +18,7 @@ module proc (/*AUTOARG*/
    // OR all the err ouputs for every sub-module and assign it as this
    // err output
    wire decode_err, mem_err;
-   assign err = decode_err;// | mem_err;
+   assign err = decode_err | mem_err;
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    

@@ -5,12 +5,13 @@ module memory(readData, stall, err, addr, writeData, en, write, halt, clk, rst);
     input [15:0] addr, writeData;
     input en, write, halt, clk, rst;
     
-    wire Done, CacheHit;
-
+    wire Done, Stall, CacheHit;
+   
+    assign stall = en & ~Done;
     // data mem
-    stallmem DataMem(
+    mem_system DataMem(
        // Outputs
-       .DataOut(readData), .Done(Done), .Stall(stall), .CacheHit(CacheHit), .err(err), 
+       .DataOut(readData), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
        // Inputs
        .Addr(addr), .DataIn(writeData), .Rd(en & ~write), .Wr(en & write), .createdump(halt), .clk(clk), .rst(rst)
     );

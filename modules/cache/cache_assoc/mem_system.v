@@ -201,13 +201,13 @@ module mem_system(/*AUTOARG*/
   /**
    * Cache output
    */
-  register_1bit all_h(.readdata(cache_hit), .clk(clk), .rst(rst), .writedata(data_sel ? c1_hit : c0_hit), .write(~cache_stall));
+  //register_1bit all_h(.readdata(cache_hit), .clk(clk), .rst(rst), .writedata(data_sel ? c1_hit : c0_hit), .write(~cache_stall));
   register_1bit all_v(.readdata(cache_valid), .clk(clk), .rst(rst), .writedata(data_sel ? c1_valid : c0_valid), .write(~cache_stall));
   register_1bit all_d(.readdata(cache_dirty), .clk(clk), .rst(rst), .writedata(data_sel ? c1_dirty : c0_dirty), .write(~cache_stall));
 
   assign cache_dataout = data_sel ? c1_data_out : c0_data_out;
   assign cache_tagout = data_sel ? c1_tag_out : c0_tag_out;
- // assign cache_hit = data_sel ? c1_hit : c0_hit;
+  assign cache_hit = data_sel ? c1ValidHit : c0ValidHit;
  // assign cache_valid = data_sel ? c1_valid : c0_valid;
  // assign cache_dirty = data_sel ? c1_dirty : c0_dirty;
   assign cache_err = data_sel ? c1_err : c0_err;
@@ -215,15 +215,18 @@ module mem_system(/*AUTOARG*/
   /**
    * Outputs assignment
    */
-  assign DataOut = cache_dataout;
-  assign CacheHit = cache_hit & cache_valid & canHit; 
   assign Done = (cache_state == COMPARE_READ | cache_state == COMPARE_WRITE) ? (cache_hit & cache_valid) : //hit right away
                 (cache_state == WR_RETRY | cache_state == RD_RETRY); //hit on retry after installing cache line
-  assign Stall = cache_stall;// & (Wr | Rd) & ~Done; 
+  
+  assign Stall = cache_stall; 
+ 
   assign err =  (cache_err | m_err) & Done;
-  //assign Stall = (Wr == 0 && Rd == 0 ) ? 1'b0 : (~Done); // cache stall???
 
- //  // assign Stall = (Wr | Rd) & ~Done; 
- //   //assign err =  (cache_err | m_err) & Done;
+  assign DataOut = cache_dataout;
+  
+  assign CacheHit = cache_hit & cache_valid & canHit; 
+
+
+  
 endmodule // mem_system
 // DUMMY LINE FOR REV CONTROL :9:
