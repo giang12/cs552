@@ -32,8 +32,14 @@ module regIDEX(
 	output [7:0] WB_control_out,
 	output [7:0] MEM_control_out,
 	output [15:0] EX_control_out
-);
+);	
+	//Sync rst
 	wire [15:0] next_instr = (flush | rst) ? 16'b0000100000000000 : instr_in;
+	
+	wire [7:0] next_WB_ctrl = flush ? 8'h0 : WB_control_in;
+	wire [7:0] next_MEM_ctrl = flush ? 8'h0 : MEM_control_in;
+	wire [15:0] next_EX_ctrl = flush ? 16'h0 : EX_control_in;
+
 	register_16bit inst0(.readdata(instr_out), .clk(clk), .rst(1'b0), .writedata(next_instr), .write(en));
 
 	//data registers
@@ -46,8 +52,8 @@ module regIDEX(
 	register_16bit inst7(.readdata(imm_11_ext_out), .clk(clk), .rst(rst), .writedata(imm_11_ext_in), .write(en));
 
 	//control registers
-	register_8bit inst8(.readdata(WB_control_out), .clk(clk), .rst(rst), .writedata(WB_control_in), .write(en));
-	register_8bit inst9(.readdata(MEM_control_out), .clk(clk), .rst(rst), .writedata(MEM_control_in), .write(en));
-	register_16bit inst10(.readdata(EX_control_out), .clk(clk), .rst(rst), .writedata(EX_control_in), .write(en));
+	register_8bit inst8(.readdata(WB_control_out), .clk(clk), .rst(rst), .writedata(next_WB_ctrl), .write(en));
+	register_8bit inst9(.readdata(MEM_control_out), .clk(clk), .rst(rst), .writedata(next_MEM_ctrl), .write(en));
+	register_16bit inst10(.readdata(EX_control_out), .clk(clk), .rst(rst), .writedata(next_EX_ctrl), .write(en));
 
 endmodule

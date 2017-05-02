@@ -13,6 +13,7 @@ module regIFID(
 	
 	//overwrite reset behavior
 	register_16bit inst0(.readdata(instr_out), .clk(clk), .rst(1'b0), .writedata(next_instr), .write(en));
+	
 	register_16bit inst1(.readdata(pcCurrent_out), .clk(clk), .rst(rst), .writedata(pcCurrent_in), .write(en));
 	register_16bit inst2(.readdata(pcPlusTwo_out), .clk(clk), .rst(rst), .writedata(pcPlusTwo_in), .write(en));
 

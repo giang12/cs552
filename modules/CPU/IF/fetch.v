@@ -1,6 +1,6 @@
-module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
+module fetch(instr, pcCurrent, pcPlusTwo, address, flush, en, clk, rst);
 
-	input clk, rst, pc_sel, en;
+	input clk, rst, flush, en;
 	input [15:0] address;
 
 	output [15:0] instr, pcCurrent, pcPlusTwo;
@@ -14,7 +14,7 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
     mux2_1_16bit pc_next_mux(	
     	.InA(pcPlusTwo),
 		.InB(address), 
-		.S(pc_sel), 
+		.S(flush), 
 		.Out(next_pc)
 	);
 
@@ -25,7 +25,7 @@ module fetch(instr, pcCurrent, pcPlusTwo, address, pc_sel, en, clk, rst);
 		//input
 		.instrLen(4'h2), //pc + 2 bytes
 		.set(next_pc),
-		.en(en & (Done | pc_sel)), //increment PC when done reading valid instr OR force branch(reading new instr)
+		.en(en & (Done | flush)), //increment PC when done reading valid instr OR force branch(reading new instr)
 		.clk(clk),
 		.rst(rst)
 	);

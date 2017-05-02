@@ -1,8 +1,9 @@
 module regMemWB(
 	//reg control inputs
+  input flush,
+  input en,
   input clk,
   input rst,
-  input en,
   //data inputs
   input [15:0] mem_data_in,
   input [15:0] pcPlusTwo_in,
@@ -26,6 +27,8 @@ module regMemWB(
   output [7:0]  WB_control_out
 );
 
+  wire [7:0] next_WB_ctrl = flush ? 8'h0 : WB_control_in;
+
 	//data reg
 	register_16bit data0(.readdata(mem_data_out), .clk(clk), .rst(rst), .writedata(mem_data_in), .write(en));
 	register_16bit data1(.readdata(pcPlusTwo_out), .clk(clk), .rst(rst), .writedata(pcPlusTwo_in), .write(en));
@@ -36,7 +39,7 @@ module regMemWB(
 	register_16bit data6(.readdata(cond_out), .clk(clk), .rst(rst), .writedata(cond_out_in), .write(en));
 
 	//control reg
-	register_8bit ctrl0(.readdata(WB_control_out), .clk(clk), .rst(rst), .writedata(WB_control_in), .write(en));
+	register_8bit ctrl0(.readdata(WB_control_out), .clk(clk), .rst(rst), .writedata(next_WB_ctrl), .write(en));
 
 
 endmodule
