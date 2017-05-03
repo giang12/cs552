@@ -23,29 +23,6 @@ module mem_system(/*AUTOARG*/
    output CacheHit;
    output err;
 
-  /**
-   * States
-   */
-   localparam IDLE          = 4'b0000; // 0
-   localparam COMPARE_READ  = 4'b0001; // 1
-   localparam COMPARE_WRITE = 4'b0010; // 2
-
-   localparam WB_0   = 4'b0011; // 3
-   localparam WB_1   = 4'b0100; // 4
-   localparam WB_2   = 4'b0101; // 5
-   localparam WB_3   = 4'b0110; // 6
-
-   localparam ALLOC0     = 4'b0111; // 7 read mem0
-   localparam ALLOC1     = 4'b1000; // 8 read mem1
-   localparam ALLOC2     = 4'b1001; // 9 read mem2 & install cacheblock0
-   localparam ALLOC3     = 4'b1010; // 10/a read mem3 & install cacheblock1
-   localparam ALLOC4     = 4'b1011; // 11/b install cacheblock2
-  
-   localparam COMMIT = 4'b1100; // 12/c install cacheblock3, last block and commit(set valid_in == true) cache line
-   localparam RD_RETRY = 4'b1101; // 13/d //rereading on a miss after install new cache line 
-   localparam WR_RETRY = 4'b1110; // 14/e //rereading on a miss after install new cache line
-   localparam ERROR   = 4'b1111; // 15/f //shit hit the fan
-
     //cache set inputs
     wire [15:0] c_addr;
     wire[4:0] c_tag_in;
@@ -127,7 +104,7 @@ module mem_system(/*AUTOARG*/
                      .rd                (m_rd));
    
   // your code here
-  wire cache_stall, canHit, deadlyErr;
+  wire cache_done, cache_stall, canHit, deadlyErr;
   wire [1:0] m_offset_out, c_offset_out;
   wire [3:0] cache_state;
   // your code here
@@ -135,6 +112,7 @@ module mem_system(/*AUTOARG*/
     //output
     .state(cache_state),
     .err(deadlyErr),
+    .done(cache_done),
     .stall(cache_stall),
     .canHit(canHit),
     //to cache
@@ -176,48 +154,49 @@ module mem_system(/*AUTOARG*/
   //2ways 2wayssss
   wire victim, victimSel, c0_valid_out, c1_valid_out;
   register_1bit victimway(.readdata(victim), .clk(clk), .rst(rst), .writedata(~victim),
-                         .write(cache_state == COMPARE_WRITE | cache_state == COMPARE_READ));
+                         .write(cache_done));
   
-  register_1bit c0_v(.readdata(c0_valid_out), .clk(clk), .rst(rst), .writedata(c0_valid), .write(~cache_stall));
-  register_1bit c1_v(.readdata(c1_valid_out), .clk(clk), .rst(rst), .writedata(c1_valid), .write(~cache_stall));
+  //register_1bit c0_v(.readdata(c0_valid_out), .clk(clk), .rst(rst), .writedata(c0_valid), .write(~cache_stall | cache_done));
+  //register_1bit c1_v(.readdata(c1_valid_out), .clk(clk), .rst(rst), .writedata(c1_valid), .write(~cache_stall | cache_done));
   
-  assign victimSel =  (c_enable & c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b1 :
-                      (c_enable & ~c0_valid & c1_valid & cache_state == IDLE) ? 1'b0 :
-                      (c_enable & ~c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b0 : 
-                      (c_enable & c0_valid & c1_valid & cache_state == IDLE) ? ~victim :
+  // assign victimSel =  (c_enable & c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b1 :
+  //                     (c_enable & ~c0_valid & c1_valid & cache_state == IDLE) ? 1'b0 :
+  //                     (c_enable & ~c0_valid & ~c1_valid & cache_state == IDLE) ? 1'b0 : 
+  //                     (c_enable & c0_valid & c1_valid & cache_state == IDLE) ? ~victim :
                        
-                      (c_enable & c0_valid_out & ~c1_valid_out & cache_state != IDLE) ? 1'b1 :
-                      (c_enable & ~c0_valid_out & c1_valid_out & cache_state != IDLE) ? 1'b0 :
-                      (c_enable & ~c0_valid_out & ~c1_valid_out & cache_state != IDLE) ? 1'b0 :
-                      (c_enable & c0_valid_out & c1_valid_out & cache_state != IDLE) ? victim : 1'b0;
+  //                     (c_enable & c0_valid_out & ~c1_valid_out & cache_state != IDLE) ? 1'b1 :
+  //                     (c_enable & ~c0_valid_out & c1_valid_out & cache_state != IDLE) ? 1'b0 :
+  //                     (c_enable & ~c0_valid_out & ~c1_valid_out & cache_state != IDLE) ? 1'b0 :
+  //                     (c_enable & c0_valid_out & c1_valid_out & cache_state != IDLE) ? victim : 1'b0;
   
-  assign c0_en = (cache_state == IDLE | cache_state == COMPARE_WRITE | cache_state == COMPARE_READ | ~victimSel);
-  assign c1_en = (cache_state == IDLE | cache_state == COMPARE_WRITE | cache_state == COMPARE_READ | victimSel);                               
+  assign c0_en = (cache_state == 0 |~victim);
+  assign c1_en = (cache_state == 0 | victim);                               
 
   assign c0ValidHit = c0_hit & c0_valid;
   assign c1ValidHit = c1_hit & c1_valid;
   assign data_sel =  c0ValidHit ? 0 :
-                     c1ValidHit ? 1 : victimSel;       
+                     c1ValidHit ? 1 : victim;       
   /**
    * Cache output
    */
   //register_1bit all_h(.readdata(cache_hit), .clk(clk), .rst(rst), .writedata(data_sel ? c1_hit : c0_hit), .write(~cache_stall));
-  register_1bit all_v(.readdata(cache_valid), .clk(clk), .rst(rst), .writedata(data_sel ? c1_valid : c0_valid), .write(~cache_stall));
-  register_1bit all_d(.readdata(cache_dirty), .clk(clk), .rst(rst), .writedata(data_sel ? c1_dirty : c0_dirty), .write(~cache_stall));
+  //register_1bit all_v(.readdata(cache_valid), .clk(clk), .rst(rst), .writedata(data_sel ? c1_valid : c0_valid), .write(~cache_stall));
+  //register_1bit all_d(.readdata(cache_dirty), .clk(clk), .rst(rst), .writedata(data_sel ? c1_dirty : c0_dirty), .write(~cache_stall));
 
   assign cache_dataout = data_sel ? c1_data_out : c0_data_out;
   assign cache_tagout = data_sel ? c1_tag_out : c0_tag_out;
-  assign cache_hit = data_sel ? c1ValidHit : c0ValidHit;
- // assign cache_valid = data_sel ? c1_valid : c0_valid;
- // assign cache_dirty = data_sel ? c1_dirty : c0_dirty;
+  assign cache_hit = data_sel ? c1_hit : c0_hit;
+  assign cache_valid = data_sel ? c1_valid : c0_valid;
+  assign cache_dirty = data_sel ? c1_dirty : c0_dirty;
   assign cache_err = data_sel ? c1_err : c0_err;
 
   /**
    * Outputs assignment
    */
-  assign Done = (cache_state == COMPARE_READ | cache_state == COMPARE_WRITE) ? (cache_hit & cache_valid) : //hit right away
-                (cache_state == WR_RETRY | cache_state == RD_RETRY); //hit on retry after installing cache line
-  
+  // assign Done = (cache_state == COMPARE_READ | cache_state == COMPARE_WRITE) ? (cache_hit & cache_valid) : //hit right away
+  //               (cache_state == WR_RETRY | cache_state == RD_RETRY); //hit on retry after installing cache line
+  assign Done = cache_done;
+
   assign Stall = cache_stall; 
  
   assign err =  (cache_err | m_err) & Done;
